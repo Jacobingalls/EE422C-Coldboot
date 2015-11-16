@@ -1,5 +1,6 @@
 package edu.utexas.ece.jacobingalls;
 
+import edu.utexas.ece.jacobingalls.buildings.Building;
 import edu.utexas.ece.jacobingalls.robots.Robot;
 import edu.utexas.ece.jacobingalls.robots.blocks.Block;
 import javafx.geometry.Point2D;
@@ -99,13 +100,18 @@ public abstract class Thing {
 	}
 
 	public Point2D getClosestEnemy(){
-		ArrayList<Block> al = new ArrayList<>();
+		ArrayList<Thing> al = new ArrayList<>();
 		App.things.parallelStream()
 				.filter(thing -> thing instanceof Robot)
 				.filter(thing -> !team.equals(thing.team))
 				.map(thing -> ((Robot) thing).getBlocks())
 				.collect(Collectors.toList())
 				.forEach(al::addAll);
+
+		App.things.parallelStream()
+				.filter(thing -> thing instanceof Building)
+				.filter(thing -> !team.equals(thing.team))
+				.forEach(al::add);
 
 		if(!al.isEmpty()){
 			Point2D p = getPoint2D();
@@ -124,4 +130,5 @@ public abstract class Thing {
 	public Team getTeam() { return team; }
 	public Thing setTeam(Team team) { this.team = team; return this; }
 	public boolean isHovering() {return hovering; }
+
 }

@@ -71,4 +71,6 @@ public abstract class MovingThing extends Thing {
 	public double getMaxVelocity() { return maxVelocity; }
 
 	public MovingThing setMaxVelocity(double maxVelocity) { this.maxVelocity = maxVelocity; return this; }
+
+
 }

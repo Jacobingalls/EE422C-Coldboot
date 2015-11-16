@@ -113,25 +113,27 @@ public class Robot extends TargetBasedMovingThing {
 			gc.strokeLine(getXCenterViewport()-spacingi, getYCenterViewport(), getXCenterViewport()+spacingi, getYCenterViewport());
 			gc.strokeLine(getXCenterViewport(), getYCenterViewport()-spacingi, getXCenterViewport(), getYCenterViewport()+spacingi);
 
-			double tgtX = getTargetLocationX() + App.viewportX;
-			double tgtY = getTargetLocationY() + App.viewportY;
-			double len = lineLength(tgtX, tgtY, getXCenterViewport(), getYCenterViewport());
-			if(Math.abs(len) > 1) {
-				if(len <= 100)
-					gc.setStroke(p1.deriveColor(0,1,1,len/100));
+			if(App.player.getTeam().equals(getTeam())) {
+				double tgtX = getTargetLocationX() + App.viewportX;
+				double tgtY = getTargetLocationY() + App.viewportY;
+				double len = lineLength(tgtX, tgtY, getXCenterViewport(), getYCenterViewport());
+				if (Math.abs(len) > 1) {
+					if (len <= 100)
+						gc.setStroke(p1.deriveColor(0, 1, 1, len / 100));
 
-				// destination
-				gc.strokeLine(tgtX - spacingi, tgtY - spacingi, tgtX + spacingi, tgtY + spacingi);
-				gc.strokeLine(tgtX + spacingi, tgtY - spacingi, tgtX - spacingi, tgtY + spacingi);
+					// destination
+					gc.strokeLine(tgtX - spacingi, tgtY - spacingi, tgtX + spacingi, tgtY + spacingi);
+					gc.strokeLine(tgtX + spacingi, tgtY - spacingi, tgtX - spacingi, tgtY + spacingi);
 
-				// connecting line
-				if(percent > .1) {
+					// connecting line
+					if (percent > .1) {
 
-					double x_diff = tgtX - getXCenterViewport();
-					double y_diff = tgtY - getYCenterViewport();
-					gc.strokeLine(tgtX - (x_diff * (1 - percent)), tgtY - (y_diff * (1 - percent)), getXCenterViewport(), getYCenterViewport());
+						double x_diff = tgtX - getXCenterViewport();
+						double y_diff = tgtY - getYCenterViewport();
+						gc.strokeLine(tgtX - (x_diff * (1 - percent)), tgtY - (y_diff * (1 - percent)), getXCenterViewport(), getYCenterViewport());
+					}
+
 				}
-
 			}
 
 //			Optional<Block> ob = blocks.parallelStream().filter(Thing::isHovered).findFirst();

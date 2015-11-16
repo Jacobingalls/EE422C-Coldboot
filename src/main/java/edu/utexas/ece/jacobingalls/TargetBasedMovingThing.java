@@ -64,4 +64,5 @@ public abstract class TargetBasedMovingThing extends MovingThing {
 		else if(targetLocationY < getYCenter())
 			setDesiredVelocityY(-getMaxVelocity());
 	}
+
 }
