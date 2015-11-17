@@ -105,14 +105,14 @@ public abstract class Thing {
 
 	public Point2D getClosestEnemy(){
 		Queue<Thing> al = new ConcurrentLinkedQueue<>();
-		App.things.parallelStream()
+		App.getGame().getThings().parallelStream()
 				.filter(thing -> thing instanceof Robot)
 				.filter(thing -> !team.equals(thing.team))
 				.map(thing -> ((Robot) thing).getBlocks())
 				.collect(Collectors.toList())
 				.forEach(al::addAll);
 
-		App.things.parallelStream()
+		App.getGame().getThings().parallelStream()
 				.filter(thing -> thing instanceof Building)
 				.filter(thing -> !team.equals(thing.team))
 				.forEach(al::add);

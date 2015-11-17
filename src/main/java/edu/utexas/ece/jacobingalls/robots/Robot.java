@@ -14,6 +14,9 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+/**
+ *
+ */
 public class Robot extends TargetBasedMovingThing {
 	double t = 0;
 
@@ -33,10 +36,20 @@ public class Robot extends TargetBasedMovingThing {
 	private List<Block> blocks = new CopyOnWriteArrayList<>();
 
 
+	/**
+	 * Creates a new robot with a partuclar team
+	 * @param team the team to set the robot to
+	 */
 	public Robot(Team team){
 		super(team);
 	}
 
+	/**
+	 * Modifies the robot by adding the specified blocks
+	 *
+	 * @param blocks the blocks to add the the robot
+	 * @return the robot with the blocks added
+	 */
 	public Robot addBlocks(List<Block> blocks){
 		blocks.parallelStream().forEach(block -> {
 			block.setTeam(team);

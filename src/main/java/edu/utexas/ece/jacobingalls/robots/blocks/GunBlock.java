@@ -84,7 +84,7 @@ public class GunBlock extends Block {
 				innerRingColor = team.getTeamAlternate1Color();
 				gunColor = team.getTeamAlternate1Color();
 				Point2D speedXY = radialToCartesian(gunAngle, power);
-				App.thingsWaiting.add(new Projectile(team)
+				App.getGame().getThingsWaiting().add(new Projectile(team)
 						.setCurrentVelocityX(speedXY.getX())
 						.setCurrentVelocityY(speedXY.getY())
 						.setDesiredVelocityX(0)

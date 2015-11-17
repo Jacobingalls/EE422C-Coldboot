@@ -50,56 +50,84 @@ public class App extends Application
     private static double mouseXDrag = 0;
     private static double mouseYDrag = 0;
 
-    public static GraphicsContext graphicsContext;
+    private static GraphicsContext graphicsContext;
 
-    public static TickThread tickThread;
-
-    public static List<Thing> things = new LinkedList<>();
-    public static Queue<Thing> thingsWaiting = new ConcurrentLinkedQueue<>();
-
-    public static RightSideBar rightSideBar = new RightSideBar();
+    private static TickThread tickThread;
 
     public static Player player = new Player(Team.GREEN);
+
+    private static Game game = new Game();
 
     public static void main(String[] args) {
         launch(App.class, args);
     }
 
+    public static Game getGame(){return game;}
+
     @Override
     public void start(Stage primaryStage) throws Exception {
-        primaryStage.setTitle("EE 422C -- Project 6");
-        primaryStage.setHeight(world_height);
-        primaryStage.setWidth(world_width);
+        graphicsContext = setupStage(primaryStage);
 
+        // Mouse management
+        setupMouseActions(primaryStage.getScene());
+
+        // Begin the background thread
+        tickThread = new TickThread();
+        tickThread.start();
+
+        // Temp
+        configureWorld();
+
+        // Finally, allow the user to see the game.
+        primaryStage.show();
+    }
+
+    @Override
+    public void stop(){
+        if(tickThread != null)
+            tickThread.running = false;
+    }
+
+    private GraphicsContext setupStage(Stage stage){
+
+        // Set the stage window up
+        stage.setTitle("Cold Boot");
+        stage.setHeight(world_height);
+        stage.setWidth(world_width);
+
+        // Create the canvas
         Canvas canvas = new Canvas(world_width, world_height);
-        graphicsContext = canvas.getGraphicsContext2D();
-        graphicsContext.setFill(Color.BLACK);
-        graphicsContext.fillRect(0,0,world_width, world_height);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.setFill(Color.BLACK);
+        gc.fillRect(0,0,world_width, world_height);
 
+        // Add the canvas to a pane what will span the entire scene
         GridPane pane = new GridPane();
         pane.add(canvas, 0, 0);
 
+        // Create the scene we will be using. It will fill the entire stage.
         Scene scene = new Scene(pane,world_width,world_height);
+        stage.setScene(scene);
+
+        // When the width is changed update the width right now (so it looks smooth)
         scene.widthProperty().addListener((observableValue, oldSceneWidth, newSceneWidth) -> {
             world_width = newSceneWidth.intValue();
             canvas.setWidth(world_width);
             tick();
         });
+
+        // When the height is changed update the width right now (so it looks smooth)
         scene.heightProperty().addListener((observableValue, oldSceneHeight, newSceneHeight) -> {
             world_height = newSceneHeight.intValue();
             canvas.setHeight(world_height);
             tick();
         });
-        primaryStage.setScene(scene);
 
-        tickThread = new TickThread();
-        tickThread.start();
+        return gc;
+    }
 
-
-        /*
-         *  Temp
-         */
-        things.add(new RobotFactory(Team.GREEN, 100, 100, team -> new AIRobot(team).addBlock(
+    private void configureWorld(){
+        game.getThings().add(new RobotFactory(Team.GREEN, 100, 100, team -> new Robot(team).addBlock(
                 new CPUBlock().setRobotXY(0, 0),
                 new Block().setRobotXY(1, 0),
                 new GunBlock().setRobotXY(0, 1),
@@ -110,7 +138,7 @@ public class App extends Application
                 new ReactorBlock().setRobotXY(1, 3)
         )).setNumberToBuild(3).setX(10).setY(10));
 
-        things.add(new RobotFactory(Team.GREEN, 100, 300, team -> new AIRobot(team).addBlock(
+        game.getThings().add(new RobotFactory(Team.GREEN, 100, 300, team -> new Robot(team).addBlock(
                 new CPUBlock(),
                 new ReactorBlock().setRobotXY(0, 1),
                 new ReactorBlock().setRobotXY(0, -1),
@@ -130,7 +158,7 @@ public class App extends Application
         )).setNumberToBuild(1).setX(10).setY(300));
 
 
-        things.add(new RobotFactory(Team.RED, 500, 300, team -> new AIRobot(team).addBlock(
+        game.getThings().add(new RobotFactory(Team.RED, 500, 300, team -> new AIRobot(team).addBlock(
                 new CPUBlock().setRobotXY(0, 0),
                 new GunBlock().setRobotXY(1, 0),
                 new GunBlock().setRobotXY(0, 2),
@@ -143,7 +171,7 @@ public class App extends Application
                 new Block().setRobotXY(1, -2)
         )).setNumberToBuild(10).setX(1600).setY(10));
 
-        things.add(new RobotFactory(Team.RED, 100, 300, team -> new AIRobot(team).addBlock(
+        game.getThings().add(new RobotFactory(Team.RED, 100, 300, team -> new AIRobot(team).addBlock(
                 new CPUBlock(),
                 new ReactorBlock().setRobotXY(0, 1),
                 new ReactorBlock().setRobotXY(0, -1),
@@ -161,94 +189,11 @@ public class App extends Application
                 new GunBlock().setRobotXY(1, -1),
                 new GunBlock().setRobotXY(-1, -1)
         )).setNumberToBuild(1).setX(1600).setY(300));
-
-        /*
-            Mouse management
-         */
-        scene.setOnMouseMoved(event -> {
-            mouseX = event.getX();
-            mouseY = event.getY();
-        });
-
-        scene.setOnMouseClicked(event -> {
-            viewpointOverride = true;
-            if(movingViewPort) {
-                viewpointOverride = false;
-                movingViewPort = false;
-            }else if(event.getButton() == MouseButton.PRIMARY) {
-                if(rightSideBar.offset < 10 && mouseX >= rightSideBar.x && mouseX <= rightSideBar.x + rightSideBar.width
-                        && mouseX >= rightSideBar.y && mouseY <= rightSideBar.y + rightSideBar.height){
-                    rightSideBar.wasClicked = true;
-                } else {
-                    things.forEach(thing -> thing.setSelected(false));
-                    if (dragging) {
-                        getThingsInDragArea().forEach(thing -> thing.setSelected(true));
-                    } else {
-                        List<Thing> hovered = things.parallelStream().filter(thing -> thing.isCollidingRoughBox(mouseXViewport, mouseYViewport)).collect(Collectors.toList());
-                        if (hovered.size() >= 1)
-                            hovered.get(hovered.size() - 1).click(mouseXViewport, mouseYViewport);
-                    }
-                    mouseXDrag = event.getX();
-                    mouseYDrag = event.getY();
-                    dragging = false;
-                }
-            } else if(event.getButton() == MouseButton.SECONDARY){
-                List<Robot> selectedRobots = things.parallelStream().filter(Thing::isSelected)
-                        .filter(thing -> thing.getTeam().equals(player.getTeam()))
-                        .filter(thing -> thing instanceof Robot)
-                        .map(thing -> (Robot)thing)
-                        .collect(Collectors.toList());
-                selectedRobots.forEach(robot -> robot.setTargetLocation(event.getX()-viewportX, event.getY()-viewportY));
-            }
-        });
-
-        scene.setOnDragDetected(event -> {
-            if(event.getButton() == MouseButton.SECONDARY) {
-                movingViewPort = true;
-                viewpointOverride = false;
-                viewportXVelocity = 0;
-                viewportYVelocity = 0;
-                dragging = false;
-            } else {
-                mouseXDrag = event.getX();
-                mouseYDrag = event.getY();
-                dragging = true;
-                movingViewPort = false;
-            }
-        });
-
-        scene.setOnMouseDragged(event -> {
-            if(movingViewPort){
-                double xDelta =  event.getX() - mouseXDrag;
-                double yDelta =  event.getY() - mouseYDrag;
-                viewportX += xDelta;
-                viewportY += yDelta;
-            }
-            mouseXDrag = event.getX();
-            mouseYDrag = event.getY();
-        });
-
-        primaryStage.show();
     }
 
-    private List<Thing> getThingsInDragArea(){
-        double x = mouseXViewport;
-        double y = mouseYViewport;
-        double width = mouseXDrag - viewportX - x;
-        double height = mouseYDrag - viewportY - y;
 
-        if (width < 0) {  x = mouseXDrag - viewportX;  width = -width;  }
-        if(height < 0){ y = mouseYDrag -viewportY; height = -height; }
 
-        final double x1 = x;
-        final double y1 = y;
-        final double x2 = x+width;
-        final double y2 = y+height;
-        return things.parallelStream().filter(thing -> thing.getXCenter() >= x1
-                && thing.getYCenter() >= y1
-                && thing.getXCenter() <= x2
-                && thing.getYCenter() <= y2).collect(Collectors.toList());
-    }
+
 
     private String fpsStr = "---";
     private long last_tick = System.currentTimeMillis();
@@ -256,6 +201,12 @@ public class App extends Application
         long time_elapsed = System.currentTimeMillis() - last_tick;
         last_tick = System.currentTimeMillis();
 
+        tick(time_elapsed);
+        render(graphicsContext);
+    }
+
+    private void tick(long time_elapsed){
+        // Update FPS Meter
         if(time_elapsed > 0)
             fpsStr = Math.round((1e3/time_elapsed))+"";
 
@@ -266,97 +217,25 @@ public class App extends Application
         mouseXViewport = mouseX-viewportX;
         mouseYViewport = mouseY-viewportY;
 
-//        if(!things.parallelStream().filter(thing -> thing.getTeam().equals(Team.GREEN)).findAny().isPresent()){
-//            for (int i = 0; i < 4; i++) {
-//                Robot goodGuy = (Robot) new Robot(Team.GREEN)
-//                        .addBlock(new CPUBlock().setRobotXY(0, 0),
-//                                new GunBlock().setRobotXY(1, 0),
-//                                new GunBlock().setRobotXY(0, 1),
-//                                new Block().setRobotXY(-1, 1))
-//                        .setMaxVelocity(50)
-//                        .setAcceleration(100);
-//                things.add(goodGuy.setTargetLocation(100, 100*i + 50).setXCenter(0).setYCenter(100 * i + 50));
-//            }
-//        }
-//
-//
-//        if(!things.parallelStream().filter(thing -> thing.getTeam().equals(Team.RED)).findAny().isPresent()){
-//            things.add(new Robot(Team.RED)
-//                    .addBlock(new CPUBlock().setRobotXY(0, 0),
-//                            new CPUBlock().setRobotXY(0, 2),
-//                            new CPUBlock().setRobotXY(0, -2),
-//                            new GunBlock().setRobotXY(-1, 4),
-//                            new GunBlock().setRobotXY(-1, 3),
-//                            new GunBlock().setRobotXY(-1, 2),
-//                            new GunBlock().setRobotXY(-1, 1),
-//                            new GunBlock().setRobotXY(-1, 0),
-//                            new GunBlock().setRobotXY(-1, -1),
-//                            new GunBlock().setRobotXY(-1, -2),
-//                            new GunBlock().setRobotXY(-1, -3),
-//                            new GunBlock().setRobotXY(-1, -4),
-//                            new GunBlock().setRobotXY(-2, 4),
-//                            new GunBlock().setRobotXY(-2, 3),
-//                            new GunBlock().setRobotXY(-2, 2),
-//                            new GunBlock().setRobotXY(-2, 1),
-//                            new GunBlock().setRobotXY(-2, 0),
-//                            new GunBlock().setRobotXY(-2, -1),
-//                            new GunBlock().setRobotXY(-2, -2),
-//                            new GunBlock().setRobotXY(-2, -3),
-//                            new GunBlock().setRobotXY(-2, -4),
-//                            new GunBlock().setRobotXY(-3, 4),
-//                            new GunBlock().setRobotXY(-3, 3),
-//                            new GunBlock().setRobotXY(-3, 2),
-//                            new GunBlock().setRobotXY(-3, 1),
-//                            new GunBlock().setRobotXY(-3, 0),
-//                            new GunBlock().setRobotXY(-3, -1),
-//                            new GunBlock().setRobotXY(-3, -2),
-//                            new GunBlock().setRobotXY(-3, -3),
-//                            new GunBlock().setRobotXY(-3, -4)
-//
-//
-//                    )
-//                    .setTargetLocation(500, 200)
-//                    .setMaxVelocity(500)
-//                    .setAcceleration(100)
-//                    .setX(700).setY(300));
-//
-//        }
+        // Tick the game
+        game.tick(time_elapsed);
+    }
 
-        while (!thingsWaiting.isEmpty())
-            things.add(thingsWaiting.poll());
-
-        things.forEach(thing -> thing.tick(time_elapsed));
-
-        things.parallelStream().filter(thing -> thing instanceof Projectile)
-                .map(thing -> (Projectile)thing)
-                .forEach(projectile -> {
-                    List<Thing> hitThings = things.parallelStream().filter(thing -> thing.getHealth() > 0)
-                            .filter(thing -> !thing.getTeam().equals(projectile.getTeam()))
-                            .filter(thing -> thing.isColliding(projectile.getX(), projectile.getY()))
-                            .collect(Collectors.toList());
-                    if(!hitThings.isEmpty()){
-                        projectile.setHealth(-1);
-                        hitThings.forEach(thing -> thing.damage(projectile.getX(), projectile.getY(), projectile.getDamage()));
-                    }
-                });
-
-        things = things.parallelStream().filter(thing -> thing.getHealth() > 0).collect(Collectors.toList());
-        rightSideBar.tick(time_elapsed);
-
+    private void render(GraphicsContext gc){
         //clear screen
-        graphicsContext.setFill(Color.BLACK);
-        graphicsContext.fillRect(0 , 0,world_width, world_height);
+        gc.setFill(Color.BLACK);
+        gc.fillRect(0 , 0,world_width, world_height);
 
 
         if(displayFPS) {
-            graphicsContext.setFill(Color.YELLOW);
-            graphicsContext.fillText(fpsStr, world_width - 20, 10, 20);
+            gc.setFill(Color.YELLOW);
+            gc.fillText(fpsStr, world_width - 20, 10, 20);
         }
 
-        things.forEach(thing -> thing.render(graphicsContext));
+        game.getThings().forEach(thing -> thing.render(gc));
 
         if(dragging){
-            things.forEach(thing -> thing.setHovering(false));
+            game.getThings().forEach(thing -> thing.setHovering(false));
             getThingsInDragArea().forEach(thing -> thing.setHovering(true));
 
             double x = mouseX;
@@ -367,24 +246,17 @@ public class App extends Application
             if(width < 0){ x = mouseXDrag; width = -width;  }
             if(height < 0){ y = mouseYDrag; height = -height; }
 
-            graphicsContext.setStroke(Color.GRAY);
-            graphicsContext.strokeRect(x, y, width, height);
+            gc.setStroke(Color.GRAY);
+            gc.strokeRect(x, y, width, height);
         } else {
-            things.forEach(thing -> thing.setHovering(false));
-            List<Thing> hovered = things.parallelStream().filter(thing -> thing.isCollidingRoughBox(mouseXViewport, mouseYViewport)).collect(Collectors.toList());
+            game.getThings().forEach(thing -> thing.setHovering(false));
+            List<Thing> hovered = game.getThings().parallelStream().filter(thing -> thing.isCollidingRoughBox(mouseXViewport, mouseYViewport)).collect(Collectors.toList());
             if(hovered.size() >= 1) {
                 hovered.get(hovered.size() - 1).setHovering(true);
             }
         }
 
-        rightSideBar.render(graphicsContext);
-    }
-
-    @Override
-    public void stop(){
-
-        if(tickThread != null)
-            tickThread.running = false;
+        game.getRightSideBar().render(gc);
     }
 
     private class TickThread extends Thread{
@@ -394,9 +266,8 @@ public class App extends Application
         private long prev_tick = System.currentTimeMillis();
         private long next_tick = System.currentTimeMillis() + max_tick_len;
 
-        public void render() {
-            long n = System.currentTimeMillis();
-            prev_tick = n;
+        public void tick() {
+            prev_tick = System.currentTimeMillis();
             next_tick = prev_tick + max_tick_len;
 
             Platform.runLater(App.this::tick);
@@ -411,7 +282,7 @@ public class App extends Application
                         max_tick_len = (int)(Math.floor(1e3/(fps)));
                     }
 
-                    render();
+                    tick();
 
                     long l =  next_tick - prev_tick - 1;
                     if(l > 1)
@@ -423,10 +294,21 @@ public class App extends Application
         }
     }
 
+
+
+
+
+
+
+
+
+
+
+
     private void updateViewport(long time_elapsed){
-        if(viewpointOverride && time_elapsed > 0 && rightSideBar.selectedThing != null){
-            double desiredViewportX = -rightSideBar.selectedThing.getXCenter()+world_width/2;
-            double desiredViewportY = -rightSideBar.selectedThing.getYCenter()+world_height/2;
+        if(viewpointOverride && time_elapsed > 0 && game.getRightSideBar().selectedThing != null){
+            double desiredViewportX = -game.getRightSideBar().selectedThing.getXCenter()+world_width/2;
+            double desiredViewportY = -game.getRightSideBar().selectedThing.getYCenter()+world_height/2;
 
             if(viewportX > desiredViewportX-1 && viewportX < desiredViewportX+1 && viewportY > desiredViewportY-1 && viewportY < desiredViewportY+1){
                 viewportX = desiredViewportX;
@@ -495,6 +377,89 @@ public class App extends Application
         }
     }
 
+    private void setupMouseActions(Scene scene){
+        scene.setOnMouseMoved(event -> {
+            mouseX = event.getX();
+            mouseY = event.getY();
+        });
 
+        scene.setOnMouseClicked(event -> {
+            viewpointOverride = true;
+            if(movingViewPort) {
+                viewpointOverride = false;
+                movingViewPort = false;
+            }else if(event.getButton() == MouseButton.PRIMARY) {
+                RightSideBar rightSideBar = game.getRightSideBar();
+                if(rightSideBar.offset < 10 && mouseX >= rightSideBar.x && mouseX <= rightSideBar.x + rightSideBar.width
+                        && mouseX >= rightSideBar.y && mouseY <= rightSideBar.y + rightSideBar.height){
+                    rightSideBar.wasClicked = true;
+                } else {
+                    game.getThings().forEach(thing -> thing.setSelected(false));
+                    if (dragging) {
+                        getThingsInDragArea().forEach(thing -> thing.setSelected(true));
+                    } else {
+                        List<Thing> hovered = game.getThings().parallelStream().filter(thing -> thing.isCollidingRoughBox(mouseXViewport, mouseYViewport)).collect(Collectors.toList());
+                        if (hovered.size() >= 1)
+                            hovered.get(hovered.size() - 1).click(mouseXViewport, mouseYViewport);
+                    }
+                    mouseXDrag = event.getX();
+                    mouseYDrag = event.getY();
+                    dragging = false;
+                }
+            } else if(event.getButton() == MouseButton.SECONDARY){
+                List<Robot> selectedRobots = game.getThings().parallelStream().filter(Thing::isSelected)
+                        .filter(thing -> thing.getTeam().equals(player.getTeam()))
+                        .filter(thing -> thing instanceof Robot)
+                        .map(thing -> (Robot)thing)
+                        .collect(Collectors.toList());
+                selectedRobots.forEach(robot -> robot.setTargetLocation(event.getX()-viewportX, event.getY()-viewportY));
+            }
+        });
+
+        scene.setOnDragDetected(event -> {
+            if(event.getButton() == MouseButton.SECONDARY) {
+                movingViewPort = true;
+                viewpointOverride = false;
+                viewportXVelocity = 0;
+                viewportYVelocity = 0;
+                dragging = false;
+            } else {
+                mouseXDrag = event.getX();
+                mouseYDrag = event.getY();
+                dragging = true;
+                movingViewPort = false;
+            }
+        });
+
+        scene.setOnMouseDragged(event -> {
+            if(movingViewPort){
+                double xDelta =  event.getX() - mouseXDrag;
+                double yDelta =  event.getY() - mouseYDrag;
+                viewportX += xDelta;
+                viewportY += yDelta;
+            }
+            mouseXDrag = event.getX();
+            mouseYDrag = event.getY();
+        });
+    }
+
+    private List<Thing> getThingsInDragArea(){
+        double x = mouseXViewport;
+        double y = mouseYViewport;
+        double width = mouseXDrag - viewportX - x;
+        double height = mouseYDrag - viewportY - y;
+
+        if (width < 0) {  x = mouseXDrag - viewportX;  width = -width;  }
+        if(height < 0){ y = mouseYDrag -viewportY; height = -height; }
+
+        final double x1 = x;
+        final double y1 = y;
+        final double x2 = x+width;
+        final double y2 = y+height;
+        return game.getThings().parallelStream().filter(thing -> thing.getXCenter() >= x1
+                && thing.getYCenter() >= y1
+                && thing.getXCenter() <= x2
+                && thing.getYCenter() <= y2).collect(Collectors.toList());
+    }
 }
 

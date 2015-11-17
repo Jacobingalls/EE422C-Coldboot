@@ -42,7 +42,7 @@ public class RobotFactory extends Factory{
 
     @Override
     public void done() {
-        App.thingsWaiting.add(makeRobot());
+        App.getGame().getThingsWaiting().add(makeRobot());
     }
 
     private Robot makeRobot(){

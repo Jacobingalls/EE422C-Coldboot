@@ -152,7 +152,7 @@ public class RightSideBar {
 		x = App.world_width-width;
 		height = App.world_height;
 
-		List<Thing> thingList = App.things.parallelStream().filter(Thing::isSelected).collect(Collectors.toList());
+		List<Thing> thingList = App.getGame().getThings().parallelStream().filter(Thing::isSelected).collect(Collectors.toList());
 		if(thingList.size() != 1)
 			selectedThing = null;
 		else selectedThing = thingList.get(0);
