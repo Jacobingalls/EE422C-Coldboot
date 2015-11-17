@@ -14,10 +14,14 @@ public class CPUBlock extends Block {
 		super.render(gc);
 
 		double detailLevel = getWidth() / 10;
-		gc.setStroke(team.getTeamColor());
-		gc.strokeRect(getXViewport() + detailLevel, getYViewport() + detailLevel, getWidth() - (detailLevel * 2), getHeight() - (detailLevel * 2));
 
-		gc.setStroke(team.getTeamColor());
+		if(!isPowered()){
+			gc.setStroke(team.getTeamColor().grayscale());
+		} else {
+			gc.setStroke(team.getTeamColor());
+		}
+
+		gc.strokeRect(getXViewport() + detailLevel, getYViewport() + detailLevel, getWidth() - (detailLevel * 2), getHeight() - (detailLevel * 2));
 		gc.strokeLine(getXViewport() + (detailLevel * 3), getYViewport() + (detailLevel * 3), getXViewport() + (detailLevel * 3), getYViewport() + (detailLevel * 7));
 		gc.strokeLine(getXViewport() + (detailLevel * 3), getYViewport() + (detailLevel * 7), getXViewport() + (detailLevel * 7), getYViewport() + (detailLevel * 7));
 		gc.strokeLine(getXViewport() + (detailLevel * 3), getYViewport() + (detailLevel * 3), getXViewport() + (detailLevel * 7), getYViewport() + (detailLevel * 3));

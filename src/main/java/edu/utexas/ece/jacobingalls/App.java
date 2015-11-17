@@ -1,11 +1,9 @@
 package edu.utexas.ece.jacobingalls;
 
-import edu.utexas.ece.jacobingalls.buildings.Building;
 import edu.utexas.ece.jacobingalls.buildings.RobotFactory;
+import edu.utexas.ece.jacobingalls.robots.AIRobot;
 import edu.utexas.ece.jacobingalls.robots.Robot;
-import edu.utexas.ece.jacobingalls.robots.blocks.Block;
-import edu.utexas.ece.jacobingalls.robots.blocks.CPUBlock;
-import edu.utexas.ece.jacobingalls.robots.blocks.GunBlock;
+import edu.utexas.ece.jacobingalls.robots.blocks.*;
 import edu.utexas.ece.jacobingalls.robots.projectiles.Projectile;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -21,6 +19,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 /**
@@ -100,57 +99,68 @@ public class App extends Application
         /*
          *  Temp
          */
-        things.add(new RobotFactory(Team.GREEN, robot -> robot.addBlock(
+        things.add(new RobotFactory(Team.GREEN, 100, 100, team -> new AIRobot(team).addBlock(
                 new CPUBlock().setRobotXY(0, 0),
                 new Block().setRobotXY(1, 0),
-                new Block().setRobotXY(0, 1),
                 new GunBlock().setRobotXY(0, 1),
                 new GunBlock().setRobotXY(0, 2),
-                new GunBlock().setRobotXY(0, 3))).setX(10).setY(10));
+                new GunBlock().setRobotXY(0, 3),
+                new MedBlock().setRobotXY(1, 1),
+                new ReactorBlock().setRobotXY(1, 2),
+                new ReactorBlock().setRobotXY(1, 3)
+        )).setNumberToBuild(3).setX(10).setY(10));
+
+        things.add(new RobotFactory(Team.GREEN, 100, 300, team -> new AIRobot(team).addBlock(
+                new CPUBlock(),
+                new ReactorBlock().setRobotXY(0, 1),
+                new ReactorBlock().setRobotXY(0, -1),
+                new ReactorBlock().setRobotXY(0, 2),
+                new ReactorBlock().setRobotXY(0, -2),
+                new MedBlock().setRobotXY(1, 0),
+                new MedBlock().setRobotXY(-1, 0),
+
+                new GunBlock().setRobotXY(-1, 2),
+                new GunBlock().setRobotXY(1, 2),
+                new GunBlock().setRobotXY(1, 1),
+                new GunBlock().setRobotXY(-1, 1),
+                new GunBlock().setRobotXY(-1, -2),
+                new GunBlock().setRobotXY(1, -2),
+                new GunBlock().setRobotXY(1, -1),
+                new GunBlock().setRobotXY(-1, -1)
+        )).setNumberToBuild(1).setX(10).setY(300));
 
 
-        things.add(new RobotFactory(Team.RED, robot -> robot.addBlock(
+        things.add(new RobotFactory(Team.RED, 500, 300, team -> new AIRobot(team).addBlock(
                 new CPUBlock().setRobotXY(0, 0),
                 new GunBlock().setRobotXY(1, 0),
                 new GunBlock().setRobotXY(0, 2),
                 new Block().setRobotXY(0, 1),
                 new Block().setRobotXY(0, -1),
-                new GunBlock().setRobotXY(0, -2))).setX(300).setY(200));
+                new GunBlock().setRobotXY(0, -2),
+                new MedBlock().setRobotXY(1, 2),
+                new ReactorBlock().setRobotXY(1, 1),
+                new ReactorBlock().setRobotXY(1, -1),
+                new Block().setRobotXY(1, -2)
+        )).setNumberToBuild(10).setX(1600).setY(10));
 
-        things.add(new Robot(Team.GREEN)
-                .addBlock(new CPUBlock().setRobotXY(0, 0),
-                        new Block().setRobotXY(1, 0),
-                        new Block().setRobotXY(0, 1),
-                        new GunBlock().setRobotXY(0, 1),
-                        new GunBlock().setRobotXY(0, 2),new GunBlock().setRobotXY(0, 3))
-                .setTargetLocation(300, 100)
-                .setMaxVelocity(1000)
-                .setAcceleration(200)
-                .setX(200).setY(100));
+        things.add(new RobotFactory(Team.RED, 100, 300, team -> new AIRobot(team).addBlock(
+                new CPUBlock(),
+                new ReactorBlock().setRobotXY(0, 1),
+                new ReactorBlock().setRobotXY(0, -1),
+                new ReactorBlock().setRobotXY(0, 2),
+                new ReactorBlock().setRobotXY(0, -2),
+                new MedBlock().setRobotXY(1, 0),
+                new MedBlock().setRobotXY(-1, 0),
 
-//        things.add(new Robot(Team.NO_TEAM)
-//                .addBlock(new CPUBlock().setRobotXY(0, 0),
-//                        new Block().setRobotXY(1, 0),
-//                        new Block().setRobotXY(0, 1),
-//                        new GunBlock().setRobotXY(0, 1),
-//                        new GunBlock().setRobotXY(0, 2),new GunBlock().setRobotXY(0, 3))
-//                .setTargetLocation(400, 100)
-//                .setMaxVelocity(1000)
-//                .setAcceleration(200)
-//                .setX(400).setY(-100));
-//
-//        things.add(new Robot(Team.RED)
-//                .addBlock(new CPUBlock().setRobotXY(0, 0),
-//                        new GunBlock().setRobotXY(1, 0),
-//                        new GunBlock().setRobotXY(0, 2),
-//                        new Block().setRobotXY(0, 1),
-//                        new Block().setRobotXY(0, -1),
-//                        new GunBlock().setRobotXY(0, -2))
-//                .setTargetLocation(400,300).setX(300)
-//                .setY(100));
-
-
-
+                new GunBlock().setRobotXY(-1, 2),
+                new GunBlock().setRobotXY(1, 2),
+                new GunBlock().setRobotXY(1, 1),
+                new GunBlock().setRobotXY(-1, 1),
+                new GunBlock().setRobotXY(-1, -2),
+                new GunBlock().setRobotXY(1, -2),
+                new GunBlock().setRobotXY(1, -1),
+                new GunBlock().setRobotXY(-1, -1)
+        )).setNumberToBuild(1).setX(1600).setY(300));
 
         /*
             Mouse management
@@ -166,17 +176,22 @@ public class App extends Application
                 viewpointOverride = false;
                 movingViewPort = false;
             }else if(event.getButton() == MouseButton.PRIMARY) {
-                things.forEach(thing -> thing.setSelected(false));
-                if (dragging) {
-                    getThingsInDragArea().forEach(thing -> thing.setSelected(true));
+                if(rightSideBar.offset < 10 && mouseX >= rightSideBar.x && mouseX <= rightSideBar.x + rightSideBar.width
+                        && mouseX >= rightSideBar.y && mouseY <= rightSideBar.y + rightSideBar.height){
+                    rightSideBar.wasClicked = true;
                 } else {
-                    List<Thing> hovered = things.parallelStream().filter(thing -> thing.isCollidingRoughBox(mouseXViewport, mouseYViewport)).collect(Collectors.toList());
-                    if(hovered.size() >= 1)
-                        hovered.get(hovered.size()-1).click(mouseXViewport, mouseYViewport);
+                    things.forEach(thing -> thing.setSelected(false));
+                    if (dragging) {
+                        getThingsInDragArea().forEach(thing -> thing.setSelected(true));
+                    } else {
+                        List<Thing> hovered = things.parallelStream().filter(thing -> thing.isCollidingRoughBox(mouseXViewport, mouseYViewport)).collect(Collectors.toList());
+                        if (hovered.size() >= 1)
+                            hovered.get(hovered.size() - 1).click(mouseXViewport, mouseYViewport);
+                    }
+                    mouseXDrag = event.getX();
+                    mouseYDrag = event.getY();
+                    dragging = false;
                 }
-                mouseXDrag = event.getX();
-                mouseYDrag = event.getY();
-                dragging = false;
             } else if(event.getButton() == MouseButton.SECONDARY){
                 List<Robot> selectedRobots = things.parallelStream().filter(Thing::isSelected)
                         .filter(thing -> thing.getTeam().equals(player.getTeam()))
@@ -238,7 +253,6 @@ public class App extends Application
     private String fpsStr = "---";
     private long last_tick = System.currentTimeMillis();
     private synchronized void tick(){
-
         long time_elapsed = System.currentTimeMillis() - last_tick;
         last_tick = System.currentTimeMillis();
 

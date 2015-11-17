@@ -2,34 +2,34 @@ package edu.utexas.ece.jacobingalls;
 
 import edu.utexas.ece.jacobingalls.buildings.Building;
 import edu.utexas.ece.jacobingalls.robots.Robot;
-import edu.utexas.ece.jacobingalls.robots.blocks.Block;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
-import sun.awt.windows.ThemeReader;
 
-import java.awt.*;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collector;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-/**
- * Created by jacobingalls on 11/12/15.
- */
 public abstract class Thing {
 	protected Team team;
 
 	private double health = 100;
 	private double maxHeath = 100;
 
+	private boolean beingHealed = false;
+
 	private double x;
 	private double y;
 
 	private boolean hovering = false;
 	private boolean selected = false;
+
+	private double energyInitialCost = 100;
+
+	private double energyRunningCost = 1;
+
+	private boolean powered = false;
 
 	public Thing(Team team){
 		super();
@@ -84,6 +84,10 @@ public abstract class Thing {
 		return health;
 	}
 
+	public double getHealthPercentage() {
+		return health/maxHeath;
+	}
+
 	public Thing setHealth(double health) {
 		this.health = health;
 		return this;
@@ -100,7 +104,7 @@ public abstract class Thing {
 	}
 
 	public Point2D getClosestEnemy(){
-		ArrayList<Thing> al = new ArrayList<>();
+		Queue<Thing> al = new ConcurrentLinkedQueue<>();
 		App.things.parallelStream()
 				.filter(thing -> thing instanceof Robot)
 				.filter(thing -> !team.equals(thing.team))
@@ -116,6 +120,7 @@ public abstract class Thing {
 		if(!al.isEmpty()){
 			Point2D p = getPoint2D();
 			return al.parallelStream()
+					.filter(thing -> thing != null)
 					.map(Thing::getPoint2D)
 					.sorted((a, b) -> (int) (a.distance(p) - b.distance(p)))
 					.findFirst()
@@ -131,4 +136,39 @@ public abstract class Thing {
 	public Thing setTeam(Team team) { this.team = team; return this; }
 	public boolean isHovering() {return hovering; }
 
+	public double getEnergyInitialCost() {
+		return energyInitialCost;
+	}
+
+	public Thing setEnergyInitialCost(double energyInitialCost) {
+		this.energyInitialCost = energyInitialCost;
+		return this;
+	}
+
+	public boolean isBeingHealed() {
+		return beingHealed;
+	}
+
+	public Thing setBeingHealed(boolean beingHealed) {
+		this.beingHealed = beingHealed;
+		return this;
+	}
+
+	public double getEnergyRunningCost() {
+		return energyRunningCost;
+	}
+
+	public Thing setEnergyRunningCost(double energyRunningCost) {
+		this.energyRunningCost = energyRunningCost;
+		return this;
+	}
+
+	public boolean isPowered() {
+		return powered;
+	}
+
+	public Thing setPowered(boolean powered) {
+		this.powered = powered;
+		return this;
+	}
 }

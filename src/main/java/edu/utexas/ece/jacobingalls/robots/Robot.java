@@ -6,13 +6,12 @@ import edu.utexas.ece.jacobingalls.Team;
 import edu.utexas.ece.jacobingalls.Thing;
 import edu.utexas.ece.jacobingalls.robots.blocks.Block;
 import edu.utexas.ece.jacobingalls.robots.blocks.CPUBlock;
+import edu.utexas.ece.jacobingalls.robots.blocks.ReactorBlock;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 public class Robot extends TargetBasedMovingThing {
@@ -28,7 +27,10 @@ public class Robot extends TargetBasedMovingThing {
 
 	boolean wasDamaged = false;
 
-	private List<Block> blocks = new ArrayList<>();
+	double currentEnergyCost = 0;
+	double currentEnergyProduction = 0;
+
+	private List<Block> blocks = new CopyOnWriteArrayList<>();
 
 
 	public Robot(Team team){
@@ -42,6 +44,7 @@ public class Robot extends TargetBasedMovingThing {
 
 		this.blocks.addAll(blocks);
 		recalculateDimensions();
+		recalculateEnergy();
 		return this;
 	}
 	public Robot addBlock(Block... blocks){
@@ -51,6 +54,7 @@ public class Robot extends TargetBasedMovingThing {
 
 		Collections.addAll(this.blocks, blocks);
 		recalculateDimensions();
+		recalculateEnergy();
 		return this;
 	}
 
@@ -82,6 +86,23 @@ public class Robot extends TargetBasedMovingThing {
 
 		width =  max_x - min_x + 1;
 		height = max_y - min_y + 1;
+	}
+
+	private void recalculateEnergy(){
+		currentEnergyCost = blocks.parallelStream().mapToDouble(Thing::getEnergyRunningCost).sum();
+		currentEnergyProduction = blocks.parallelStream().filter(block -> block instanceof ReactorBlock)
+				.mapToDouble(block -> ((ReactorBlock)block).getEnergyProduction()).sum();
+
+		if(getEnergyUtilization() <= 0) {
+			this.blocks.forEach(block -> block.setPowered(false));
+		} else if(getEnergyUtilization() <= 1){
+			this.blocks.forEach(block -> block.setPowered(true));
+		} else if(getEnergyUtilization() > 0) {
+			this.blocks.forEach(block -> block.setPowered(true));
+			Random r = new Random();
+			this.blocks.parallelStream().sorted((a,b)->r.nextInt()).limit(Math.round(this.blocks.size() * 2 * (getEnergyUtilization() - 1)))
+					.forEach(block -> block.setPowered(false));
+		}
 	}
 
 	@Override
@@ -151,11 +172,17 @@ public class Robot extends TargetBasedMovingThing {
 	public void tick(long time_elapsed) {
 		super.tick(time_elapsed);
 
+		this.blocks.forEach(block -> block.setRobot(this));
+		getBlocks().parallelStream().forEach(block -> block.setBeingHealed(false));
+
+		recalculateEnergy();
+
 		if(wasDamaged) {
 			blocks = blocks.parallelStream().filter(thing -> thing.getHealth() > 0).collect(Collectors.toList());
 			if(blocks.size() == 0)
 				setHealth(-1);
 			recalculateDimensions();
+			recalculateEnergy();
 			wasDamaged = false;
 
 			if(blocks.parallelStream().filter(block -> block instanceof CPUBlock).count() <= 0)
@@ -174,7 +201,7 @@ public class Robot extends TargetBasedMovingThing {
 			selectSeconds -= time_elapsed/1000.0;
 		}
 
-		blocks.forEach(block -> block
+		blocks.parallelStream().forEach(block -> block
 				.setX(getX() + block.getRobotX() * block.getWidth())
 				.setY(getY() - (1 - height + block.getRobotY()) * block.getHeight())
 				.tick(time_elapsed));
@@ -229,5 +256,38 @@ public class Robot extends TargetBasedMovingThing {
 			}
 		}
 		return 100 * h / mh;
+	}
+
+	@Override
+	public double getEnergyInitialCost(){
+		double me = super.getEnergyInitialCost();
+		double blockCost = blocks.parallelStream().mapToDouble(Block::getEnergyInitialCost).sum();
+
+		return me + blockCost;
+	}
+
+	public double getCurrentEnergyCost() {
+		return currentEnergyCost;
+	}
+
+	public Robot setCurrentEnergyCost(double currentEnergyCost) {
+		this.currentEnergyCost = currentEnergyCost;
+		return this;
+	}
+
+	public double getCurrentEnergyProduction() {
+		return currentEnergyProduction;
+	}
+
+	public Robot setCurrentEnergyProduction(double currentEnergyProduction) {
+		this.currentEnergyProduction = currentEnergyProduction;
+		return this;
+	}
+
+	public double getEnergyUtilization() {
+		if(currentEnergyProduction > 0)
+			return currentEnergyCost/currentEnergyProduction;
+		else
+			return -1;
 	}
 }

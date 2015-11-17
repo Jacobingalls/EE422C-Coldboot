@@ -2,6 +2,7 @@ package edu.utexas.ece.jacobingalls.robots.blocks;
 
 import edu.utexas.ece.jacobingalls.Team;
 import edu.utexas.ece.jacobingalls.Thing;
+import edu.utexas.ece.jacobingalls.robots.Robot;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -12,6 +13,8 @@ public class Block extends Thing {
 
 	private int robotX;
 	private int robotY;
+
+	private Robot robot;
 
 	private Color alarmColor;
 
@@ -54,10 +57,20 @@ public class Block extends Thing {
 	public void render(GraphicsContext gc) {
 
 
+		if(!isPowered()){
+			if(getHealth() > getMaxHeath()/2 || (int)(damageMillis / 100) % 2 != 0) {
+				gc.setStroke(team.getTeamColor());
+				gc.setFill(team.getTeamBackgroundColor().grayscale());
+			} else {
+				gc.setStroke( team.getTeamAlternate2Color().darker());
+				gc.setFill(team.getTeamBackgroundColor().grayscale());
+			}
 
-		if(getHealth() > getMaxHeath()/2 || (int)(damageMillis / 100) % 2 != 0) {
+		} else if(getHealth() > getMaxHeath()/2 || (int)(damageMillis / 100) % 2 != 0) {
+
 			gc.setStroke(team.getTeamColor());
 			gc.setFill(team.getTeamBackgroundColor());
+
 		} else {
 			if(alarmColor == null){
 				alarmColor = team.getTeamAlternate2Color().darker().darker();
@@ -71,7 +84,10 @@ public class Block extends Thing {
 		gc.strokeRect(getXViewport(), getYViewport(), getWidth(), getHeight());
 
 
-
+		if(isBeingHealed()) {
+			gc.setFill(team.getTeamAlternate2Color().deriveColor(0,1,1,.4));
+			gc.fillOval(getXCenterViewport()-getWidth()/4,getYCenterViewport()-getWidth()/4, getWidth()/2, getHeight()/2);
+		}
 	}
 
 	@Override
@@ -89,5 +105,14 @@ public class Block extends Thing {
 	@Override
 	protected boolean clicked(double x, double y) {
 		return false;
+	}
+
+	public Robot getRobot() {
+		return robot;
+	}
+
+	public Block setRobot(Robot robot) {
+		this.robot = robot;
+		return this;
 	}
 }

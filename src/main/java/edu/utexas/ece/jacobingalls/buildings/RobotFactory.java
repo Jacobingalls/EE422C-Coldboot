@@ -3,16 +3,10 @@ package edu.utexas.ece.jacobingalls.buildings;
 import edu.utexas.ece.jacobingalls.App;
 import edu.utexas.ece.jacobingalls.Team;
 import edu.utexas.ece.jacobingalls.robots.Robot;
-import edu.utexas.ece.jacobingalls.robots.blocks.Block;
 import edu.utexas.ece.jacobingalls.robots.blocks.CPUBlock;
 import javafx.scene.canvas.GraphicsContext;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 //TODO Add fancy graphics
@@ -21,12 +15,21 @@ public class RobotFactory extends Factory{
     double robotMaxVelocity = 500;
     double robotAcceleration = 200;
 
-    private Function<Robot, Robot> robotFunction;
+    double energySpeed = 200;
 
-    public RobotFactory(Team team, Function<Robot, Robot> robotFunction) {
+    double destinationX;
+    double destinationY;
+
+    private Function<Team, Robot> robotFunction;
+
+    public RobotFactory(Team team, double destinationX, double destinationY,Function<Team, Robot> robotFunction) {
         super(team);
 
         this.robotFunction = robotFunction;
+        setBuildTime(makeRobot().getEnergyInitialCost()/energySpeed);
+
+        this.destinationX = destinationX;
+        this.destinationY = destinationY;
     }
 
     @Override
@@ -39,11 +42,16 @@ public class RobotFactory extends Factory{
 
     @Override
     public void done() {
-         Robot rob = (Robot)robotFunction.apply(new Robot(getTeam()))
-            .setTargetLocation(getXCenter() + getWidth(), getYCenter())
+        App.thingsWaiting.add(makeRobot());
+    }
+
+    private Robot makeRobot(){
+        Robot rob = (Robot)robotFunction.apply(getTeam())
+            .setTargetLocation(destinationX,destinationY)
             .setMaxVelocity(robotMaxVelocity)
             .setAcceleration(robotAcceleration)
-            .setX(getXCenter()).setY(getYCenter());
+            .setXCenter(getXCenter())
+            .setYCenter(getYCenter());
 
         if(rob.getBlocks().parallelStream().filter(block -> block instanceof CPUBlock).collect(Collectors.toList()).isEmpty()) {
             rob.getBlocks().parallelStream().filter(block -> block.getRobotX() == 0 && block.getRobotY() == 0).forEach(block -> block.setHealth(-1));
@@ -51,6 +59,6 @@ public class RobotFactory extends Factory{
             rob.damage(0,0,0);
         }
 
-        App.thingsWaiting.add(rob);
+        return rob;
     }
 }

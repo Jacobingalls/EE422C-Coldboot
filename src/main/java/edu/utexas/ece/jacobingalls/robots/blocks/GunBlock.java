@@ -32,6 +32,7 @@ public class GunBlock extends Block {
 		super.render(gc);
 
 		double detailLevel = getWidth() / 10;
+
 		gc.setStroke(innerRingColor);
 		gc.strokeRect(getXViewport() + detailLevel, getYViewport() + detailLevel, getWidth() - (detailLevel * 2), getHeight() - (detailLevel * 2));
 
@@ -43,6 +44,12 @@ public class GunBlock extends Block {
 	@Override
 	public void tick(long time_elapsed) {
 		super.tick(time_elapsed);
+
+		if(!isPowered()){
+			innerRingColor = team.getTeamColor().grayscale();
+			gunColor = team.getTeamColor().grayscale();
+			return;
+		}
 
 		if(seconds == 0){
 			//get next fire location

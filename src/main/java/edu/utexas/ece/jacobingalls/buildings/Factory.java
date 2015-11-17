@@ -12,7 +12,7 @@ public abstract class Factory extends Building {
     double buildTime = 1;
     boolean building = false;
 
-    int numberToBuild = 10;
+    int numberToBuild = 0;
 
     public Factory(Team team) {
         super(team);
@@ -22,14 +22,16 @@ public abstract class Factory extends Building {
     public  void render(GraphicsContext gc){
         super.render(gc);
         if(building){
+            String s = ""+numberToBuild;
+            if(numberToBuild <= 1) {
+                s = "";
+            }
+
             new ProgressBar(this.getTeam(), currentTime/buildTime, getXViewport() + 5, getYViewport() + getHeight() - 15, getWidth() - 10, 10)
                     .setTiggerDirection(false)
                     .setTrigger(.9)
+                    .setText(s)
                     .render(gc);
-            if(numberToBuild > 1) {
-                gc.setFill(team.getTeamAlternate1Color());
-                gc.fillText("" + numberToBuild, getXCenterViewport() - 5, getYViewport() + getHeight() - 5);
-            }
         }
     }
 
@@ -78,4 +80,15 @@ public abstract class Factory extends Building {
         this.building = building;
         return this;
     }
+
+    public int getNumberToBuild() {
+        return numberToBuild;
+    }
+
+    public Factory setNumberToBuild(int numberToBuild) {
+        this.numberToBuild = numberToBuild;
+        return this;
+    }
+
+    public double getBuildPercentage(){return currentTime/buildTime;}
 }
