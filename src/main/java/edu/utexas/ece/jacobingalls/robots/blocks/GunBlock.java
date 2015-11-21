@@ -1,7 +1,7 @@
 package edu.utexas.ece.jacobingalls.robots.blocks;
 
 import edu.utexas.ece.jacobingalls.App;
-import edu.utexas.ece.jacobingalls.Team;
+import edu.utexas.ece.jacobingalls.robots.Thing;
 import edu.utexas.ece.jacobingalls.robots.projectiles.Projectile;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
@@ -53,9 +53,9 @@ public class GunBlock extends Block {
 
 		if(seconds == 0){
 			//get next fire location
-			targetPoint = getClosestEnemy();
-			if(targetPoint != null) {
-
+			Thing t = getClosestEnemy();
+			if(t != null) {
+				targetPoint = t.getPoint2D();
 				gunAngle = (180/Math.PI)*Math.atan2(-(targetPoint.getY() - getYCenter()),targetPoint.getX() - getXCenter());
 				shouldFire = true;
 			} else {

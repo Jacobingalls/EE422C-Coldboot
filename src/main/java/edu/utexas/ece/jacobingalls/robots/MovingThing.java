@@ -1,7 +1,6 @@
-package edu.utexas.ece.jacobingalls;
+package edu.utexas.ece.jacobingalls.robots;
 
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
+import edu.utexas.ece.jacobingalls.Team;
 
 /**
  * Created by jacobingalls on 11/13/15.
@@ -72,5 +71,11 @@ public abstract class MovingThing extends Thing {
 
 	public MovingThing setMaxVelocity(double maxVelocity) { this.maxVelocity = maxVelocity; return this; }
 
+	public double getVelocityUtilization() {
+		if(maxVelocity <= 0)
+			return -1;
+		else
+			return (Math.abs(currentVelocityX) + Math.abs(currentVelocityY)) / (2 * maxVelocity);
+	}
 
 }

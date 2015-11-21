@@ -1,8 +1,7 @@
-package edu.utexas.ece.jacobingalls.robots.gui;
+package edu.utexas.ece.jacobingalls.gui;
 
 import edu.utexas.ece.jacobingalls.Team;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 
 public class ProgressBar {

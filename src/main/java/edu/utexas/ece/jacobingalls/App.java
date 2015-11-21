@@ -1,10 +1,12 @@
 package edu.utexas.ece.jacobingalls;
 
 import edu.utexas.ece.jacobingalls.buildings.RobotFactory;
+import edu.utexas.ece.jacobingalls.gui.RightSideBar;
 import edu.utexas.ece.jacobingalls.robots.AIRobot;
+import edu.utexas.ece.jacobingalls.robots.Blueprint;
 import edu.utexas.ece.jacobingalls.robots.Robot;
+import edu.utexas.ece.jacobingalls.robots.Thing;
 import edu.utexas.ece.jacobingalls.robots.blocks.*;
-import edu.utexas.ece.jacobingalls.robots.projectiles.Projectile;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -15,11 +17,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 /**
@@ -54,7 +52,7 @@ public class App extends Application
 
     private static TickThread tickThread;
 
-    public static Player player = new Player(Team.GREEN);
+    public static Player player = new Player(Team.CYAN);
 
     private static Game game = new Game();
 
@@ -127,68 +125,35 @@ public class App extends Application
     }
 
     private void configureWorld(){
-        game.getThings().add(new RobotFactory(Team.GREEN, 100, 100, team -> new Robot(team).addBlock(
-                new CPUBlock().setRobotXY(0, 0),
-                new Block().setRobotXY(1, 0),
-                new GunBlock().setRobotXY(0, 1),
-                new GunBlock().setRobotXY(0, 2),
-                new GunBlock().setRobotXY(0, 3),
-                new MedBlock().setRobotXY(1, 1),
-                new ReactorBlock().setRobotXY(1, 2),
-                new ReactorBlock().setRobotXY(1, 3)
-        )).setNumberToBuild(3).setX(10).setY(10));
-
-        game.getThings().add(new RobotFactory(Team.GREEN, 100, 300, team -> new Robot(team).addBlock(
-                new CPUBlock(),
-                new ReactorBlock().setRobotXY(0, 1),
-                new ReactorBlock().setRobotXY(0, -1),
-                new ReactorBlock().setRobotXY(0, 2),
-                new ReactorBlock().setRobotXY(0, -2),
-                new MedBlock().setRobotXY(1, 0),
-                new MedBlock().setRobotXY(-1, 0),
-
-                new GunBlock().setRobotXY(-1, 2),
-                new GunBlock().setRobotXY(1, 2),
-                new GunBlock().setRobotXY(1, 1),
-                new GunBlock().setRobotXY(-1, 1),
-                new GunBlock().setRobotXY(-1, -2),
-                new GunBlock().setRobotXY(1, -2),
-                new GunBlock().setRobotXY(1, -1),
-                new GunBlock().setRobotXY(-1, -1)
-        )).setNumberToBuild(1).setX(10).setY(300));
 
 
-        game.getThings().add(new RobotFactory(Team.RED, 500, 300, team -> new AIRobot(team).addBlock(
-                new CPUBlock().setRobotXY(0, 0),
-                new GunBlock().setRobotXY(1, 0),
-                new GunBlock().setRobotXY(0, 2),
-                new Block().setRobotXY(0, 1),
-                new Block().setRobotXY(0, -1),
-                new GunBlock().setRobotXY(0, -2),
-                new MedBlock().setRobotXY(1, 2),
-                new ReactorBlock().setRobotXY(1, 1),
-                new ReactorBlock().setRobotXY(1, -1),
-                new Block().setRobotXY(1, -2)
-        )).setNumberToBuild(10).setX(1600).setY(10));
+        double greenX = 10;
+        game.getThings().add(new RobotFactory(player.getTeam(), greenX + 100, 100, team ->
+                Blueprint.SMALL_FIGHTER.build(AIRobot.class, team).get()
+        ).setNumberToBuild(3).setX(greenX).setY(10));
 
-        game.getThings().add(new RobotFactory(Team.RED, 100, 300, team -> new AIRobot(team).addBlock(
-                new CPUBlock(),
-                new ReactorBlock().setRobotXY(0, 1),
-                new ReactorBlock().setRobotXY(0, -1),
-                new ReactorBlock().setRobotXY(0, 2),
-                new ReactorBlock().setRobotXY(0, -2),
-                new MedBlock().setRobotXY(1, 0),
-                new MedBlock().setRobotXY(-1, 0),
+        game.getThings().add(new RobotFactory(player.getTeam(), greenX+100, 300, team ->
+                Blueprint.MEDIUM_FIGHTER.build(AIRobot.class, team).get()
+        ).setNumberToBuild(5).setX(greenX).setY(300));
 
-                new GunBlock().setRobotXY(-1, 2),
-                new GunBlock().setRobotXY(1, 2),
-                new GunBlock().setRobotXY(1, 1),
-                new GunBlock().setRobotXY(-1, 1),
-                new GunBlock().setRobotXY(-1, -2),
-                new GunBlock().setRobotXY(1, -2),
-                new GunBlock().setRobotXY(1, -1),
-                new GunBlock().setRobotXY(-1, -1)
-        )).setNumberToBuild(1).setX(1600).setY(300));
+        game.getThings().add(new RobotFactory(player.getTeam(), greenX+100, 600, team ->
+                Blueprint.BIG_GUN.build(Robot.class, team).get()
+        ).setNumberToBuild(3).setX(greenX).setY(600));
+
+
+        double redX = App.world_width-10;
+        game.getThings().add(new RobotFactory(Team.RED, redX-100, 100, team ->
+                Blueprint.SMALL_FIGHTER.build(AIRobot.class, team).get()
+        ).setNumberToBuild(3).setX(redX).setY(10));
+
+        game.getThings().add(new RobotFactory(Team.RED, redX-100, 300, team ->
+                Blueprint.MEDIUM_FIGHTER.build(AIRobot.class, team).get()
+        ).setNumberToBuild(5).setX(redX).setY(300));
+
+        game.getThings().add(new RobotFactory(Team.RED, redX-100, 600, team ->
+                Blueprint.BIG_GUN.build(AIRobot.class, team).get()
+        ).setNumberToBuild(3).setX(redX).setY(600));
+
     }
 
 
@@ -227,6 +192,9 @@ public class App extends Application
         gc.fillRect(0 , 0,world_width, world_height);
 
 
+        // Create Parallax Background
+        renderParallaxBackground(gc);
+
         if(displayFPS) {
             gc.setFill(Color.YELLOW);
             gc.fillText(fpsStr, world_width - 20, 10, 20);
@@ -257,6 +225,30 @@ public class App extends Application
         }
 
         game.getRightSideBar().render(gc);
+    }
+
+    private void renderParallaxBackground(GraphicsContext gc) {
+        renderParallaxBackgroundPart(gc, 25, .25, Color.rgb(10,10,10));
+        renderParallaxBackgroundPart(gc, 50, .5, Color.rgb(20,20,20));
+        renderParallaxBackgroundPart(gc, 100, 1, Color.rgb(35,35,35));
+    }
+
+    private void renderParallaxBackgroundPart(GraphicsContext gc, int boxSize, double parallax, Color color) {
+        int divisionsX = (world_width/boxSize)+2;
+        int divisionsY = (world_height/boxSize)+2;
+
+
+        gc.setStroke(color);
+        double xOffset = (viewportX*parallax) % boxSize;
+        double yOffset = (viewportY*parallax) % boxSize;
+
+        for (int i = -1; i < divisionsX; i++) {
+            gc.strokeLine(i*boxSize+xOffset, 0, i*boxSize+xOffset, world_height);
+        }
+
+        for (int i = -1; i < divisionsY; i++) {
+            gc.strokeLine(0, i*boxSize+yOffset, world_width, i*boxSize+yOffset);
+        }
     }
 
     private class TickThread extends Thread{
@@ -306,9 +298,9 @@ public class App extends Application
 
 
     private void updateViewport(long time_elapsed){
-        if(viewpointOverride && time_elapsed > 0 && game.getRightSideBar().selectedThing != null){
-            double desiredViewportX = -game.getRightSideBar().selectedThing.getXCenter()+world_width/2;
-            double desiredViewportY = -game.getRightSideBar().selectedThing.getYCenter()+world_height/2;
+        if(viewpointOverride && time_elapsed > 0 && game.getRightSideBar().getSelectedThing() != null){
+            double desiredViewportX = -game.getRightSideBar().getSelectedThing().getXCenter()+world_width/2;
+            double desiredViewportY = -game.getRightSideBar().getSelectedThing().getYCenter()+world_height/2;
 
             if(viewportX > desiredViewportX-1 && viewportX < desiredViewportX+1 && viewportY > desiredViewportY-1 && viewportY < desiredViewportY+1){
                 viewportX = desiredViewportX;
@@ -390,8 +382,8 @@ public class App extends Application
                 movingViewPort = false;
             }else if(event.getButton() == MouseButton.PRIMARY) {
                 RightSideBar rightSideBar = game.getRightSideBar();
-                if(rightSideBar.offset < 10 && mouseX >= rightSideBar.x && mouseX <= rightSideBar.x + rightSideBar.width
-                        && mouseX >= rightSideBar.y && mouseY <= rightSideBar.y + rightSideBar.height){
+                if(rightSideBar.getOffset() < 10 && mouseX >= rightSideBar.getX() && mouseX <= rightSideBar.getX() + rightSideBar.getWidth()
+                        && mouseX >= rightSideBar.getY() && mouseY <= rightSideBar.getY() + rightSideBar.getHeight()){
                     rightSideBar.wasClicked = true;
                 } else {
                     game.getThings().forEach(thing -> thing.setSelected(false));
@@ -407,7 +399,8 @@ public class App extends Application
                     dragging = false;
                 }
             } else if(event.getButton() == MouseButton.SECONDARY){
-                List<Robot> selectedRobots = game.getThings().parallelStream().filter(Thing::isSelected)
+                List<Robot> selectedRobots = game.getThings().parallelStream()
+                        .filter(Thing::isSelected)
                         .filter(thing -> thing.getTeam().equals(player.getTeam()))
                         .filter(thing -> thing instanceof Robot)
                         .map(thing -> (Robot)thing)

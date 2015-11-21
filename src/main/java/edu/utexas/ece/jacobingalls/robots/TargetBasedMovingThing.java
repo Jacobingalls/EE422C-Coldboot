@@ -1,6 +1,6 @@
-package edu.utexas.ece.jacobingalls;
+package edu.utexas.ece.jacobingalls.robots;
 
-import javafx.scene.paint.Color;
+import edu.utexas.ece.jacobingalls.Team;
 
 /**
  * Created by jacobingalls on 11/13/15.

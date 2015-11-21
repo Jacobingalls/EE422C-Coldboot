@@ -1,11 +1,12 @@
-package edu.utexas.ece.jacobingalls;
+package edu.utexas.ece.jacobingalls.gui;
 
+import edu.utexas.ece.jacobingalls.App;
+import edu.utexas.ece.jacobingalls.robots.Thing;
 import edu.utexas.ece.jacobingalls.buildings.Building;
 import edu.utexas.ece.jacobingalls.buildings.Factory;
 import edu.utexas.ece.jacobingalls.robots.Robot;
 import edu.utexas.ece.jacobingalls.robots.blocks.Block;
-import edu.utexas.ece.jacobingalls.robots.gui.Button;
-import edu.utexas.ece.jacobingalls.robots.gui.ProgressBar;
+import edu.utexas.ece.jacobingalls.utils.Tuple;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -15,17 +16,17 @@ import java.util.stream.Collectors;
 
 public class RightSideBar {
 
-	double width = 200;
-	double height = 400;
+	private double width = 200;
+	private double height = 400;
 
-	double x = 500;
-	double y = 0;
+	private double x = 500;
+	private double y = 0;
 
 	public boolean wasClicked = false;
 
-	Thing selectedThing = null;
+	private Thing selectedThing = null;
 
-	double offset = height;
+	private double offset = height;
 
 	public void render(GraphicsContext gc) {
 		double dis_x = x + offset;
@@ -39,7 +40,7 @@ public class RightSideBar {
 		if (selectedThing != null) {
 			if (selectedThing instanceof Robot) {
 				renderRobotGeneralList(gc, dis_x, 0);
-				renderRobotDamagedList(gc, dis_x, 100);
+				renderRobotDamagedList(gc, dis_x, 140);
 			} else if(selectedThing instanceof Building){
 				renderBuildingGeneralInfo(gc, dis_x, 0);
 
@@ -60,8 +61,8 @@ public class RightSideBar {
 			gc.setStroke(Color.rgb(50, 50, 50));
 			gc.setFill(Color.GRAY);
 		} else {
-			gc.setStroke(selectedThing.team.getTeamColor());
-			gc.setFill(selectedThing.team.getTeamColor());
+			gc.setStroke(selectedThing.getTeam().getTeamColor());
+			gc.setFill(selectedThing.getTeam().getTeamColor());
 		}
 	}
 
@@ -69,21 +70,42 @@ public class RightSideBar {
 		setColor(gc);
 		gc.fillText("Overall", dis_x + 10, y + 15 + dis_y);
 		gc.fillText("Heath", dis_x + 10, y + dis_y + 32);
-		new ProgressBar(selectedThing.team, (((Robot)selectedThing).getRealHealth()) / 100, dis_x + width - 110, dis_y + 22, 100, 10)
+		new ProgressBar(selectedThing.getTeam(), (((Robot)selectedThing).getRealHealth()) / 100, dis_x + width - 110, dis_y + 22, 100, 10)
 				.setTrigger(.5)
 				.render(gc);
 
+		setColor(gc);
 		gc.fillText("CPU Heath", dis_x + 10, y + dis_y + 32 + 20);
-		new ProgressBar(selectedThing.team, (((Robot)selectedThing).getCPUHealth()) / 100, dis_x + width - 110, dis_y + 42, 100, 10)
+		new ProgressBar(selectedThing.getTeam(), (((Robot)selectedThing).getCPUHealth()) / 100, dis_x + width - 110, dis_y + 42, 100, 10)
 				.setTrigger(.5)
 				.render(gc);
 
+		setColor(gc);
 		gc.fillText("Power Util.", dis_x + 10, y + dis_y + 52 + 20);
 		double util = ((Robot)selectedThing).getEnergyUtilization();
-		new ProgressBar(selectedThing.team, util, dis_x + width - 110, dis_y + 62, 100, 10)
+		new ProgressBar(selectedThing.getTeam(), util, dis_x + width - 110, dis_y + 62, 100, 10)
 				.setTiggerDirection(false)
 				.setTrigger(.75)
 				.render(gc);
+
+		setColor(gc);
+		gc.fillText("Torque Util.", dis_x + 10, y + dis_y + 52 + 40);
+		util = ((Robot)selectedThing).getTorqueUtilization();
+		new ProgressBar(selectedThing.getTeam(), util, dis_x + width - 110, dis_y + 82, 100, 10)
+				.setTiggerDirection(false)
+				.setTrigger(.75)
+				.render(gc);
+
+		setColor(gc);
+		gc.fillText("Velocity Util.", dis_x + 10, y + dis_y + 52 + 60);
+		util = ((Robot)selectedThing).getVelocityUtilization();
+		new ProgressBar(selectedThing.getTeam(), util, dis_x + width - 110, dis_y + 102, 100, 10)
+				.setTiggerDirection(false)
+				.setTrigger(1.01)
+				.render(gc);
+
+
+
 
 	}
 	private void renderRobotDamagedList(GraphicsContext gc, double dis_x, double dis_y){
@@ -92,20 +114,22 @@ public class RightSideBar {
 
 		Robot robot = (Robot)selectedThing;
 		List<Block> blocks = robot.getBlocks().parallelStream()
-//					.filter(block -> block.getHealthPercentage() < 1)
-				.sorted((a, b) -> (int) (a.getHealth() - b.getHealth())).limit(5)
+				.map(block -> new Tuple<>(block.getHealth(), block))
+				.sorted((a, b) -> a.a.compareTo(b.a)).limit(5)
+				.map(tuple -> tuple.b)
 				.collect(Collectors.toList());
+
 		for (int i = 0; i < blocks.size(); i++) {
 			Block b = blocks.get(i);
 			setColor(gc);
 			if(App.player.getTeam().equals(selectedThing.getTeam())) {
 				if(b.isBeingHealed())
-					gc.setFill(b.team.getTeamAlternate2Color());
+					gc.setFill(b.getTeam().getTeamAlternate2Color());
 
 				gc.fillText(b.getRobotX() + "x" + blocks.get(i).getRobotY(), dis_x + 10, y + dis_y + 32 + 20 * i);
 				gc.fillText(b.getClass().getSimpleName(), dis_x + 50, y + dis_y + 32 + 20 * i);
 
-				new ProgressBar(selectedThing.team, (b.getHealth()) / 100, dis_x + width - 60, dis_y + 22 + 20 * i, 50, 10)
+				new ProgressBar(selectedThing.getTeam(), (b.getHealth()) / 100, dis_x + width - 60, dis_y + 22 + 20 * i, 50, 10)
 //						.setText(blocks.get(i).isBeingHealed() ? "H" : "")
 						.setTrigger(.5)
 						.render(gc);
@@ -115,7 +139,7 @@ public class RightSideBar {
 				String s = "" + ((char)(r.nextInt(27)+40))+ ((char)(r.nextInt(27)+40))+ ((char)(r.nextInt(27)+40))+ ((char)(r.nextInt(27)+40))+ ((char)(r.nextInt(27)+40))+ ((char)(r.nextInt(27)+40));
 
 				gc.fillText(s, dis_x + 50+5*r.nextDouble(), y + dis_y + 32 + 5*r.nextDouble() + 20 * i);
-				new ProgressBar(selectedThing.team, r.nextDouble(), dis_x + width - 60, dis_y + 22 + 20 * i, 50, 10)
+				new ProgressBar(selectedThing.getTeam(), r.nextDouble(), dis_x + width - 60, dis_y + 22 + 20 * i, 50, 10)
 						.setTrigger(.5)
 						.render(gc);
 			}
@@ -126,7 +150,7 @@ public class RightSideBar {
 		setColor(gc);
 		gc.fillText("Overall", dis_x + 10, y + 15 + dis_y);
 		gc.fillText("Heath", dis_x + 10, y + dis_y + 32);
-		new ProgressBar(selectedThing.team, (selectedThing.getHealth()) / 100, dis_x + width - 110, dis_y + 22, 100, 10)
+		new ProgressBar(selectedThing.getTeam(), (selectedThing.getHealth()) / 100, dis_x + width - 110, dis_y + 22, 100, 10)
 				.setTrigger(.5)
 				.render(gc);
 	}
@@ -135,12 +159,12 @@ public class RightSideBar {
 		setColor(gc);
 		gc.fillText("Factory Status", dis_x + 10, y + 15 + dis_y);
 		gc.fillText("Completion", dis_x + 10, y + dis_y + 32);
-		new ProgressBar(selectedThing.team, ((Factory)selectedThing).getBuildPercentage(), dis_x + width - 110, dis_y + 22, 100, 10)
+		new ProgressBar(selectedThing.getTeam(), ((Factory)selectedThing).getBuildPercentage(), dis_x + width - 110, dis_y + 22, 100, 10)
 				.setTiggerDirection(false)
 				.setTrigger(.9)
 				.render(gc);
 
-		new Button(selectedThing.team, "Add to Queue", dis_x + 10, dis_y + 40, 100, 20).handlePossibleClick(wasClicked, button -> {
+		new Button(selectedThing.getTeam(), "Add to Queue", dis_x + 10, dis_y + 40, 100, 20).handlePossibleClick(wasClicked, button -> {
 			Factory f = (Factory)selectedThing;
 			f.setNumberToBuild(f.getNumberToBuild() + 1);
 		}).render(gc);
@@ -168,4 +192,57 @@ public class RightSideBar {
 		}
 	}
 
+	public Thing getSelectedThing() {
+		return selectedThing;
+	}
+
+	public RightSideBar setSelectedThing(Thing selectedThing) {
+		this.selectedThing = selectedThing;
+		return this;
+	}
+
+	public double getWidth() {
+		return width;
+	}
+
+	public RightSideBar setWidth(double width) {
+		this.width = width;
+		return this;
+	}
+
+	public double getHeight() {
+		return height;
+	}
+
+	public RightSideBar setHeight(double height) {
+		this.height = height;
+		return this;
+	}
+
+	public double getX() {
+		return x;
+	}
+
+	public RightSideBar setX(double x) {
+		this.x = x;
+		return this;
+	}
+
+	public double getY() {
+		return y;
+	}
+
+	public RightSideBar setY(double y) {
+		this.y = y;
+		return this;
+	}
+
+	public double getOffset() {
+		return offset;
+	}
+
+	public RightSideBar setOffset(double offset) {
+		this.offset = offset;
+		return this;
+	}
 }

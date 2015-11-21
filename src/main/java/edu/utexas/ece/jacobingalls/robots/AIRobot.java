@@ -1,7 +1,6 @@
 package edu.utexas.ece.jacobingalls.robots;
 
 import edu.utexas.ece.jacobingalls.Team;
-import javafx.geometry.Point2D;
 
 /**
  * Created by jacobingalls on 11/16/15.
@@ -14,6 +13,7 @@ public class AIRobot extends Robot {
 	public AIRobot(Team team) {
 		super(team);
 	}
+	public AIRobot() {super();}
 
 	@Override
 	public void tick(long time_elapsed){
@@ -23,7 +23,7 @@ public class AIRobot extends Robot {
 		if(AINavRefreshCurrentTime > AINavRefreshTime){
 			AINavRefreshCurrentTime = 0;
 
-			Point2D t = getClosestEnemy();
+			Thing t = getClosestEnemy();
 			if(t != null) {
 
 				boolean c = false;

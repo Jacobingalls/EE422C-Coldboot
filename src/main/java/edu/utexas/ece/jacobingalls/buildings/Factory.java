@@ -1,7 +1,7 @@
 package edu.utexas.ece.jacobingalls.buildings;
 
 import edu.utexas.ece.jacobingalls.Team;
-import edu.utexas.ece.jacobingalls.robots.gui.ProgressBar;
+import edu.utexas.ece.jacobingalls.gui.ProgressBar;
 import javafx.scene.canvas.GraphicsContext;
 
 /**

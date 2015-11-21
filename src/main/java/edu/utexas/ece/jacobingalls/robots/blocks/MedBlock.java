@@ -1,5 +1,6 @@
 package edu.utexas.ece.jacobingalls.robots.blocks;
 
+import edu.utexas.ece.jacobingalls.Team;
 import javafx.scene.canvas.GraphicsContext;
 
 import java.util.List;
@@ -16,6 +17,16 @@ public class MedBlock extends Block{
 
 	double notHealingRunningCost = 1;
 	double healingRunningCost = 10;
+
+	public MedBlock(Team team){
+		super(team);
+		setMass(100);
+	}
+
+	public MedBlock(){
+		this(Team.NO_TEAM);
+	}
+
 
 	@Override
 	public void render(GraphicsContext gc) {
@@ -34,8 +45,7 @@ public class MedBlock extends Block{
 			gc.setStroke(team.getTeamAlternate2Color());
 		else
 			gc.setStroke(team.getTeamColor());
-		gc.strokeLine(getXViewport() + (detailLevel * 3), getYViewport() + (detailLevel * 3), getXViewport() + (detailLevel * 3), getYViewport() + (detailLevel * 7));
-		gc.strokeLine(getXViewport() + (detailLevel * 7), getYViewport() + (detailLevel * 3), getXViewport() + (detailLevel * 7), getYViewport() + (detailLevel * 7));
+		gc.strokeLine(getXViewport() + (detailLevel * 5), getYViewport() + (detailLevel * 3), getXViewport() + (detailLevel * 5), getYViewport() + (detailLevel * 7));
 		gc.strokeLine(getXViewport() + (detailLevel * 3), getYViewport() + (detailLevel * 5), getXViewport() + (detailLevel * 7), getYViewport() + (detailLevel * 5));
 	}
 

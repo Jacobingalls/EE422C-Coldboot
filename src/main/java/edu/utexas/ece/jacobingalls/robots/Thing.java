@@ -1,13 +1,13 @@
-package edu.utexas.ece.jacobingalls;
+package edu.utexas.ece.jacobingalls.robots;
 
+import edu.utexas.ece.jacobingalls.App;
+import edu.utexas.ece.jacobingalls.Team;
 import edu.utexas.ece.jacobingalls.buildings.Building;
-import edu.utexas.ece.jacobingalls.robots.Robot;
+import edu.utexas.ece.jacobingalls.utils.Tuple;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 
-import java.util.ArrayList;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
@@ -28,6 +28,7 @@ public abstract class Thing {
 	private double energyInitialCost = 100;
 
 	private double energyRunningCost = 1;
+	private double mass = 10;
 
 	private boolean powered = false;
 
@@ -80,17 +81,25 @@ public abstract class Thing {
 
 	public void damage(double x, double y,double damage){setHealth(getHealth() - damage);}
 
+	private boolean hasDied = false;
 	public double getHealth() {
+		if(health <= 0 && !hasDied){ died(); }
 		return health;
+	}
+
+	public Thing setHealth(double health) {
+		this.health = health;
+		if(health <= 0 && !hasDied){ died(); }
+		return this;
 	}
 
 	public double getHealthPercentage() {
 		return health/maxHeath;
 	}
 
-	public Thing setHealth(double health) {
-		this.health = health;
-		return this;
+
+	protected void died(){
+		hasDied = true;
 	}
 
 	protected double lineLength(double x1, double y1, double x2, double y2){
@@ -103,7 +112,7 @@ public abstract class Thing {
 		return new Point2D(x,y);
 	}
 
-	public Point2D getClosestEnemy(){
+	public Thing getClosestEnemy(){
 		Queue<Thing> al = new ConcurrentLinkedQueue<>();
 		App.getGame().getThings().parallelStream()
 				.filter(thing -> thing instanceof Robot)
@@ -121,10 +130,12 @@ public abstract class Thing {
 			Point2D p = getPoint2D();
 			return al.parallelStream()
 					.filter(thing -> thing != null)
-					.map(Thing::getPoint2D)
-					.sorted((a, b) -> (int) (a.distance(p) - b.distance(p)))
+					.map(thing -> new Tuple<>(thing.getPoint2D().distance(p), thing))
+//					.collect(Collectors.toList())
+//					.parallelStream()
+					.sorted((a, b) -> a.a.compareTo(b.a))
 					.findFirst()
-					.get();
+					.get().b;
 		} else
 		return null;
 	}
@@ -169,6 +180,15 @@ public abstract class Thing {
 
 	public Thing setPowered(boolean powered) {
 		this.powered = powered;
+		return this;
+	}
+
+	public double getMass() {
+		return mass;
+	}
+
+	public Thing setMass(double mass) {
+		this.mass = mass;
 		return this;
 	}
 }

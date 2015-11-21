@@ -1,12 +1,12 @@
 package edu.utexas.ece.jacobingalls.robots;
 
 import edu.utexas.ece.jacobingalls.App;
-import edu.utexas.ece.jacobingalls.TargetBasedMovingThing;
 import edu.utexas.ece.jacobingalls.Team;
-import edu.utexas.ece.jacobingalls.Thing;
 import edu.utexas.ece.jacobingalls.robots.blocks.Block;
 import edu.utexas.ece.jacobingalls.robots.blocks.CPUBlock;
+import edu.utexas.ece.jacobingalls.robots.blocks.MotorBlock;
 import edu.utexas.ece.jacobingalls.robots.blocks.ReactorBlock;
+import edu.utexas.ece.jacobingalls.utils.Tuple;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  *
  */
 public class Robot extends TargetBasedMovingThing {
-	double t = 0;
+	double tick = 0;
 
 	double selectSeconds = 0;
 	double selectSecondThreshold = .25;
@@ -32,6 +32,8 @@ public class Robot extends TargetBasedMovingThing {
 
 	double currentEnergyCost = 0;
 	double currentEnergyProduction = 0;
+	double currentMass = 0;
+	double currentTorque = 0;
 
 	private List<Block> blocks = new CopyOnWriteArrayList<>();
 
@@ -42,6 +44,10 @@ public class Robot extends TargetBasedMovingThing {
 	 */
 	public Robot(Team team){
 		super(team);
+	}
+
+	public Robot(){
+		this(Team.NO_TEAM);
 	}
 
 	/**
@@ -58,6 +64,7 @@ public class Robot extends TargetBasedMovingThing {
 		this.blocks.addAll(blocks);
 		recalculateDimensions();
 		recalculateEnergy();
+		recalculateMass();
 		return this;
 	}
 	public Robot addBlock(Block... blocks){
@@ -68,6 +75,7 @@ public class Robot extends TargetBasedMovingThing {
 		Collections.addAll(this.blocks, blocks);
 		recalculateDimensions();
 		recalculateEnergy();
+		recalculateMass();
 		return this;
 	}
 
@@ -104,7 +112,7 @@ public class Robot extends TargetBasedMovingThing {
 	private void recalculateEnergy(){
 		currentEnergyCost = blocks.parallelStream().mapToDouble(Thing::getEnergyRunningCost).sum();
 		currentEnergyProduction = blocks.parallelStream().filter(block -> block instanceof ReactorBlock)
-				.mapToDouble(block -> ((ReactorBlock)block).getEnergyProduction()).sum();
+				.mapToDouble(block -> ((ReactorBlock)block).getEnergyProduction()).sum() + 5;
 
 		if(getEnergyUtilization() <= 0) {
 			this.blocks.forEach(block -> block.setPowered(false));
@@ -113,9 +121,35 @@ public class Robot extends TargetBasedMovingThing {
 		} else if(getEnergyUtilization() > 0) {
 			this.blocks.forEach(block -> block.setPowered(true));
 			Random r = new Random();
-			this.blocks.parallelStream().sorted((a,b)->r.nextInt()).limit(Math.round(this.blocks.size() * 2 * (getEnergyUtilization() - 1)))
-					.forEach(block -> block.setPowered(false));
+			this.blocks.parallelStream()
+					.map(block -> new Tuple<>(r.nextInt(), block))
+					.sorted((a,b) -> a.a.compareTo(b.a))
+					.limit(Math.round(this.blocks.size() * (getEnergyUtilization() - 1)))
+					.forEach(block -> block.b.setPowered(false));
 		}
+	}
+
+	private void recalculateMass(){
+		currentMass = blocks.parallelStream().mapToDouble(Thing::getMass).sum();
+		List<MotorBlock> motors = blocks.parallelStream().filter(block -> block instanceof MotorBlock)
+				.map(block -> ((MotorBlock) block)).collect(Collectors.toList());
+
+		currentTorque = motors.parallelStream().mapToDouble(MotorBlock::getStrength).sum();
+
+		double maxSpeed = (500.0 * motors.size())/(blocks.size()/2);
+		double maxAcceleration = (1 - getTorqueUtilization()/4) * maxSpeed * 2;
+
+		if( getTorqueUtilization() < 0){
+			maxAcceleration = 10;
+			maxSpeed = 50;
+		} else if(getTorqueUtilization() > 2) {
+			maxAcceleration = 0;
+		} else if(getTorqueUtilization() > 1) {
+			maxAcceleration = (maxSpeed - (getTorqueUtilization() - 1)*maxSpeed);
+		}
+
+		setAcceleration(maxAcceleration);
+		setMaxVelocity(maxSpeed);
 	}
 
 	@Override
@@ -169,15 +203,6 @@ public class Robot extends TargetBasedMovingThing {
 
 				}
 			}
-
-//			Optional<Block> ob = blocks.parallelStream().filter(Thing::isHovered).findFirst();
-//			if(ob.isPresent()){
-//				Block b = ob.get();
-//				gc.setStroke(p1.deriveColor(0,1,1,percent));
-//				gc.strokeText(b.getClass().getSimpleName(), getX() + getWidth() + 10+spacing, getY()+8);
-//				gc.strokeText("Health: "+Math.round(b.getHealth() * 100), getX() + getWidth() + 10+spacing, getY() + 20);
-//			}
-
 		}
 	}
 
@@ -188,7 +213,11 @@ public class Robot extends TargetBasedMovingThing {
 		this.blocks.forEach(block -> block.setRobot(this));
 		getBlocks().parallelStream().forEach(block -> block.setBeingHealed(false));
 
-		recalculateEnergy();
+		tick =(tick + time_elapsed) % 1000;
+		if(tick <= time_elapsed){
+			recalculateEnergy();
+			recalculateMass();
+		}
 
 		if(wasDamaged) {
 			blocks = blocks.parallelStream().filter(thing -> thing.getHealth() > 0).collect(Collectors.toList());
@@ -196,13 +225,12 @@ public class Robot extends TargetBasedMovingThing {
 				setHealth(-1);
 			recalculateDimensions();
 			recalculateEnergy();
+			recalculateMass();
 			wasDamaged = false;
 
 			if(blocks.parallelStream().filter(block -> block instanceof CPUBlock).count() <= 0)
 				setHealth(-1);
 		}
-
-		t=(t+time_elapsed/(double)10000)%1;
 
 		if((isHovered() || isSelected()) && selectSeconds >= selectSecondThreshold){
 			selectSeconds = selectSecondThreshold;
@@ -300,6 +328,31 @@ public class Robot extends TargetBasedMovingThing {
 	public double getEnergyUtilization() {
 		if(currentEnergyProduction > 0)
 			return currentEnergyCost/currentEnergyProduction;
+		else
+			return -1;
+	}
+
+	public double getCurrentTorque() {
+		return currentTorque;
+	}
+
+	public Robot setCurrentTorque(double currentTorque) {
+		this.currentTorque = currentTorque;
+		return this;
+	}
+
+	public double getCurrentMass() {
+		return currentMass;
+	}
+
+	public Robot setCurrentMass(double currentMass) {
+		this.currentMass = currentMass;
+		return this;
+	}
+
+	public  double getTorqueUtilization(){
+		if(currentTorque > 0)
+			return currentMass/currentTorque;
 		else
 			return -1;
 	}

@@ -1,4 +1,4 @@
-package edu.utexas.ece.jacobingalls.robots.gui;
+package edu.utexas.ece.jacobingalls.gui;
 
 import edu.utexas.ece.jacobingalls.App;
 import edu.utexas.ece.jacobingalls.Team;
@@ -6,7 +6,6 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.text.TextAlignment;
 
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
  * Created by jacobingalls on 11/16/15.

@@ -1,7 +1,10 @@
 package edu.utexas.ece.jacobingalls.robots.blocks;
 
+import edu.utexas.ece.jacobingalls.Team;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.shape.ArcType;
+
+import java.util.Random;
 
 /**
  * Created by jacobingalls on 11/16/15.
@@ -11,18 +14,44 @@ public class ReactorBlock extends Block{
 
 	double energyProduction = 10;
 
+	public ReactorBlock(){
+		this(Team.NO_TEAM);
+	}
+
+	public ReactorBlock(Team team){
+		super(team);
+		setMass(5);
+	}
+
 	@Override
 	public void render(GraphicsContext gc) {
 		super.render(gc);
 
 		double detailLevel = getWidth() / 10;
-		if(isPowered())gc.setStroke(team.getTeamColor()); else gc.setStroke(team.getTeamColor().grayscale());
+		gc.setStroke(team.getTeamColor());
 		gc.strokeRect(getXViewport() + detailLevel, getYViewport() + detailLevel, getWidth() - (detailLevel * 2), getHeight() - (detailLevel * 2));
-		gc.strokeOval(getXViewport() + (3 * detailLevel), getYViewport() + (3 * detailLevel), getWidth() - (detailLevel * 6), getHeight() - (detailLevel * 6));
 
-		if(isPowered())gc.setStroke(team.getTeamAlternate1Color()); else gc.setStroke(team.getTeamAlternate1Color().grayscale());
-		gc.strokeArc(getXViewport()+(3*detailLevel),getYViewport()+(3*detailLevel),getWidth() - (detailLevel * 6),getHeight() - (detailLevel * 6),reactorTick, 90, ArcType.OPEN);
+		gc.setStroke(team.getTeamAlternate1Color());
+		double dl2 = (2*detailLevel);
+		double dl3 = (3*detailLevel);
+		double dl5 = (5*detailLevel);
+		double dl7 = (7*detailLevel);
+		double lx = getXViewport();
+		double ly1 = getYCenterViewport() + dl2 + Math.sin((reactorTick*Math.PI)/600);
+		double ly2 = getYCenterViewport() - dl2 - Math.sin((reactorTick*Math.PI)/600);
 
+		if(getRobot().getEnergyUtilization() > 1.5)
+			gc.setStroke(team.getTeamAlternate2Color());
+
+		gc.strokeLine(lx + dl7, ly1, lx + dl7, ly2);
+
+		if(getRobot().getEnergyUtilization() > 1.25)
+			gc.setStroke(team.getTeamAlternate2Color());
+		gc.strokeLine(lx + dl5, ly1, lx + dl5, ly2);
+
+		if(getRobot().getEnergyUtilization() > 1)
+			gc.setStroke(team.getTeamAlternate2Color());
+		gc.strokeLine(lx + dl3, ly1, lx + dl3, ly2);
 	}
 
 	@Override
@@ -30,10 +59,10 @@ public class ReactorBlock extends Block{
 		super.tick(time_elapsed);
 
 		if(!isPowered())
-			return;
+			this.setPowered(true);
 
-		reactorTick+=time_elapsed;
-		if(reactorTick > 360){
+		reactorTick+=time_elapsed * (getRobot().getEnergyUtilization() * getRobot().getEnergyUtilization());
+		if(reactorTick > 1800){
 			reactorTick = 0;
 		}
 	}
