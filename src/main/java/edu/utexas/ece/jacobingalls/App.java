@@ -52,7 +52,7 @@ public class App extends Application
 
     private static TickThread tickThread;
 
-    public static Player player = new Player(Team.CYAN);
+    public static Player player = new Player(Team.GREEN);
 
     private static Game game = new Game();
 

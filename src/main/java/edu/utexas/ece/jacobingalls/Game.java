@@ -2,6 +2,7 @@ package edu.utexas.ece.jacobingalls;
 
 import edu.utexas.ece.jacobingalls.gui.RightSideBar;
 import edu.utexas.ece.jacobingalls.robots.Thing;
+import edu.utexas.ece.jacobingalls.robots.particles.Particle;
 import edu.utexas.ece.jacobingalls.robots.projectiles.Projectile;
 
 import java.util.LinkedList;
@@ -29,7 +30,9 @@ public class Game {
 		things.parallelStream().filter(thing -> thing instanceof Projectile)
 				.map(thing -> (Projectile)thing)
 				.forEach(projectile -> {
-					List<Thing> hitThings = things.parallelStream().filter(thing -> thing.getHealth() > 0)
+					List<Thing> hitThings = things.parallelStream()
+							.filter(thing -> !(thing instanceof Particle))
+							.filter(thing -> thing.getHealth() > 0)
 							.filter(thing -> !thing.getTeam().equals(projectile.getTeam()))
 							.filter(thing -> thing.isColliding(projectile.getX(), projectile.getY()))
 							.collect(Collectors.toList());
