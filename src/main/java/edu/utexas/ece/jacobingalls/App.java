@@ -1,6 +1,7 @@
 package edu.utexas.ece.jacobingalls;
 
 import edu.utexas.ece.jacobingalls.buildings.RobotFactory;
+import edu.utexas.ece.jacobingalls.buildings.TeamBase;
 import edu.utexas.ece.jacobingalls.gui.RightSideBar;
 import edu.utexas.ece.jacobingalls.robots.AIRobot;
 import edu.utexas.ece.jacobingalls.robots.Blueprint;
@@ -128,6 +129,9 @@ public class App extends Application
 
 
         double greenX = 10;
+
+        game.getThings().add(new TeamBase(player.getTeam()).setX(greenX - 100));
+
         game.getThings().add(new RobotFactory(player.getTeam(), greenX + 100, 100, team ->
                 Blueprint.SMALL_FIGHTER.build(AIRobot.class, team).get()
         ).setNumberToBuild(3).setX(greenX).setY(10));
@@ -142,6 +146,8 @@ public class App extends Application
 
 
         double redX = App.world_width-10;
+        game.getThings().add(new TeamBase(Team.RED).setX(redX + 100));
+
         game.getThings().add(new RobotFactory(Team.RED, redX-100, 100, team ->
                 Blueprint.SMALL_FIGHTER.build(AIRobot.class, team).get()
         ).setNumberToBuild(3).setX(redX).setY(10));

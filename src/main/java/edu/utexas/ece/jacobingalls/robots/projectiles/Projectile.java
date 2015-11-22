@@ -63,10 +63,11 @@ public class Projectile extends MovingThing {
 		if(r.nextBoolean()) {
 
 			App.getGame().getThingsWaiting().add(new Particle(getTeam())
-							.setCurrentVelocityX(-getCurrentVelocityX() * 10 * (r.nextDouble()  - .5))
-							.setCurrentVelocityY(-getCurrentVelocityY() * 10 * (r.nextDouble()  - .5))
-							.setDesiredVelocityX(0)
-							.setDesiredVelocityY(0)
+							.setSourceColor(getTeam().getTeamColor())
+							.setCurrentVelocityX(-getCurrentVelocityX() * 10 * (r.nextDouble()/2  + .5))
+							.setCurrentVelocityY(-getCurrentVelocityY() * 10 * (r.nextDouble()/2  + .5))
+							.setDesiredVelocityX(-getCurrentVelocityX() * 100 * (r.nextDouble()/2  + .5))
+							.setDesiredVelocityY(-getCurrentVelocityX() * 100 * (r.nextDouble()/2  + .5))
 							.setAcceleration(.01)
 							.setXCenter(getXCenter())
 							.setYCenter(getYCenter())
