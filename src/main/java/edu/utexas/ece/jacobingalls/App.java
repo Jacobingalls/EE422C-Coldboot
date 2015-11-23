@@ -13,12 +13,14 @@ import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -69,6 +71,9 @@ public class App extends Application
 
         // Mouse management
         setupMouseActions(primaryStage.getScene());
+
+        // Keybindings
+        setupKeyboardActions(primaryStage.getScene());
 
         // Begin the background thread
         tickThread = new TickThread();
@@ -373,6 +378,39 @@ public class App extends Application
                 viewportY += viewportYVelocity * tacc;
             }
         }
+    }
+
+
+    // TODO be able to specify a home base
+    private void setupKeyboardActions(Scene scene){
+        scene.setOnKeyPressed(event -> {
+            if (event.getCode().isLetterKey()) {
+                if (event.getCode().equals(KeyCode.H)) {
+                    Optional<Thing> teamBaseOptional = App.getGame().getThings().parallelStream()
+                            .filter(thing -> thing instanceof TeamBase)
+                            .filter(thing -> thing.getTeam().equals(App.player.getTeam()))
+                            .findFirst();
+                    if(teamBaseOptional.isPresent()){
+                        if(teamBaseOptional.get().isSelected())
+                            App.viewpointOverride = true;
+                        else {
+                            App.getGame().getThings().parallelStream().forEach(thing -> thing.setSelected(false));
+                            teamBaseOptional.get().setSelected(true);
+                            App.viewpointOverride = false;
+                        }
+
+                    } else {
+                        System.err.println("No home base!");
+                    }
+
+
+                }
+            }
+        });
+
+        scene.setOnKeyReleased(event -> {
+            System.out.println("r"+event.getCode().getName());
+        });
     }
 
     private void setupMouseActions(Scene scene){
