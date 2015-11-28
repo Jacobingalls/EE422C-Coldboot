@@ -32,7 +32,7 @@ public class WatchCommand implements Command {
 	}
 
 	public String getDescription() {
-		return "Runs the game.";
+		return "Runs the game (Beta).";
 	}
 }
 
