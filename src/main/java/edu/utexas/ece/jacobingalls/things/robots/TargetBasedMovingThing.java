@@ -1,4 +1,4 @@
-package edu.utexas.ece.jacobingalls.robots;
+package edu.utexas.ece.jacobingalls.things.robots;
 
 import edu.utexas.ece.jacobingalls.player.Team;
 

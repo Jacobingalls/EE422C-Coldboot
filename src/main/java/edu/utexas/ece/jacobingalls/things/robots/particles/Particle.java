@@ -1,7 +1,7 @@
-package edu.utexas.ece.jacobingalls.robots.particles;
+package edu.utexas.ece.jacobingalls.things.robots.particles;
 
 import edu.utexas.ece.jacobingalls.player.Team;
-import edu.utexas.ece.jacobingalls.robots.MovingThing;
+import edu.utexas.ece.jacobingalls.things.robots.MovingThing;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 

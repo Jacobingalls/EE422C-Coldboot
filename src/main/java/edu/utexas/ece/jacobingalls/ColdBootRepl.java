@@ -1,12 +1,12 @@
 package edu.utexas.ece.jacobingalls;
 
-import edu.utexas.ece.jacobingalls.buildings.Building;
-import edu.utexas.ece.jacobingalls.buildings.Factory;
+import edu.utexas.ece.jacobingalls.things.buildings.Building;
+import edu.utexas.ece.jacobingalls.things.buildings.Factory;
 import edu.utexas.ece.jacobingalls.commands.*;
 import edu.utexas.ece.jacobingalls.player.AIPlayer;
-import edu.utexas.ece.jacobingalls.robots.Robot;
-import edu.utexas.ece.jacobingalls.robots.Thing;
-import edu.utexas.ece.jacobingalls.robots.particles.Particle;
+import edu.utexas.ece.jacobingalls.things.robots.Robot;
+import edu.utexas.ece.jacobingalls.things.Thing;
+import edu.utexas.ece.jacobingalls.things.robots.particles.Particle;
 import javafx.scene.paint.Color;
 
 import java.util.*;

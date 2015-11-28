@@ -1,9 +1,8 @@
-package edu.utexas.ece.jacobingalls.robots.blocks;
+package edu.utexas.ece.jacobingalls.things.robots.blocks;
 
-import edu.utexas.ece.jacobingalls.ColdBootGui;
 import edu.utexas.ece.jacobingalls.Game;
-import edu.utexas.ece.jacobingalls.robots.Thing;
-import edu.utexas.ece.jacobingalls.robots.projectiles.Projectile;
+import edu.utexas.ece.jacobingalls.things.Thing;
+import edu.utexas.ece.jacobingalls.things.robots.projectiles.Projectile;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;

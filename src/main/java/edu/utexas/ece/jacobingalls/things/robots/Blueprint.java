@@ -1,7 +1,7 @@
-package edu.utexas.ece.jacobingalls.robots;
+package edu.utexas.ece.jacobingalls.things.robots;
 
 import edu.utexas.ece.jacobingalls.player.Team;
-import edu.utexas.ece.jacobingalls.robots.blocks.*;
+import edu.utexas.ece.jacobingalls.things.robots.blocks.*;
 
 import java.util.ArrayList;
 import java.util.Collections;

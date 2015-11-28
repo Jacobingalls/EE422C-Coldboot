@@ -1,12 +1,11 @@
 package edu.utexas.ece.jacobingalls.commands;
 
-import com.sun.xml.internal.rngom.parse.host.Base;
 import edu.utexas.ece.jacobingalls.ColdBootRepl;
 import edu.utexas.ece.jacobingalls.Game;
-import edu.utexas.ece.jacobingalls.buildings.Factory;
-import edu.utexas.ece.jacobingalls.buildings.TeamBase;
-import edu.utexas.ece.jacobingalls.robots.Robot;
-import edu.utexas.ece.jacobingalls.robots.Thing;
+import edu.utexas.ece.jacobingalls.things.buildings.Factory;
+import edu.utexas.ece.jacobingalls.things.buildings.TeamBase;
+import edu.utexas.ece.jacobingalls.things.robots.Robot;
+import edu.utexas.ece.jacobingalls.things.Thing;
 import javafx.scene.paint.Color;
 
 import java.util.Arrays;
@@ -85,16 +84,16 @@ public class ListCommand implements Command {
 			else if (thing.getTeam().getTeamColor().equals(Color.RED))
 				colorStr = ColdBootRepl.ANSI_RED;
 
-			String name = colorStr+thing.getClass().getSimpleName()+ColdBootRepl.ANSI_RESET;
+			String name = colorStr + thing.getClass().getSimpleName() + ColdBootRepl.ANSI_RESET;
 
-			if(thing.getHealthPercentage() < .5)
+			if (thing.getHealthPercentage() < .5)
 				colorStr = ColdBootRepl.ANSI_RED;
 			else
 				colorStr = "";
-			String health = colorStr+thing.getHealthPercentage()+ColdBootRepl.ANSI_RESET;
+			String health = colorStr + thing.getHealthPercentage() + ColdBootRepl.ANSI_RESET;
 
 
-			System.out.println(name + "\t" + "\t" + (int)thing.getX() + "\t" + (int)thing.getY() + "\t" + health);
+			System.out.println(name + "\t" + "\t" + (int) thing.getX() + "\t" + (int) thing.getY() + "\t" + health);
 		});
 
 

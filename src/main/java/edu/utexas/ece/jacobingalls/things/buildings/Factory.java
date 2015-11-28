@@ -1,4 +1,4 @@
-package edu.utexas.ece.jacobingalls.buildings;
+package edu.utexas.ece.jacobingalls.things.buildings;
 
 import edu.utexas.ece.jacobingalls.player.Team;
 import edu.utexas.ece.jacobingalls.gui.ProgressBar;

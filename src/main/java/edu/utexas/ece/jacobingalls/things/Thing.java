@@ -1,9 +1,10 @@
-package edu.utexas.ece.jacobingalls.robots;
+package edu.utexas.ece.jacobingalls.things;
 
 import edu.utexas.ece.jacobingalls.ColdBootGui;
 import edu.utexas.ece.jacobingalls.Game;
 import edu.utexas.ece.jacobingalls.player.Team;
-import edu.utexas.ece.jacobingalls.buildings.Building;
+import edu.utexas.ece.jacobingalls.things.buildings.Building;
+import edu.utexas.ece.jacobingalls.things.robots.Robot;
 import edu.utexas.ece.jacobingalls.utils.Tuple;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
@@ -34,7 +35,7 @@ public abstract class Thing {
 
 	private boolean powered = false;
 
-	public Thing(Team team){
+	public Thing(Team team) {
 		super();
 		this.team = team;
 	}

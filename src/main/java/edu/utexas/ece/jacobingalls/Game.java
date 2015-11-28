@@ -1,14 +1,14 @@
 package edu.utexas.ece.jacobingalls;
 
-import edu.utexas.ece.jacobingalls.buildings.RobotFactory;
-import edu.utexas.ece.jacobingalls.buildings.TeamBase;
+import edu.utexas.ece.jacobingalls.things.buildings.RobotFactory;
+import edu.utexas.ece.jacobingalls.things.buildings.TeamBase;
 import edu.utexas.ece.jacobingalls.gui.RightSideBar;
 import edu.utexas.ece.jacobingalls.player.Player;
-import edu.utexas.ece.jacobingalls.robots.AIRobot;
-import edu.utexas.ece.jacobingalls.robots.Blueprint;
-import edu.utexas.ece.jacobingalls.robots.Thing;
-import edu.utexas.ece.jacobingalls.robots.particles.Particle;
-import edu.utexas.ece.jacobingalls.robots.projectiles.Projectile;
+import edu.utexas.ece.jacobingalls.things.robots.AIRobot;
+import edu.utexas.ece.jacobingalls.things.robots.Blueprint;
+import edu.utexas.ece.jacobingalls.things.Thing;
+import edu.utexas.ece.jacobingalls.things.robots.particles.Particle;
+import edu.utexas.ece.jacobingalls.things.robots.projectiles.Projectile;
 
 import java.util.LinkedList;
 import java.util.List;

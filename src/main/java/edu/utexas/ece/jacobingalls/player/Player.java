@@ -2,10 +2,10 @@ package edu.utexas.ece.jacobingalls.player;
 
 import edu.utexas.ece.jacobingalls.ColdBootGui;
 import edu.utexas.ece.jacobingalls.Game;
-import edu.utexas.ece.jacobingalls.buildings.Factory;
-import edu.utexas.ece.jacobingalls.buildings.TeamBase;
-import edu.utexas.ece.jacobingalls.robots.Robot;
-import edu.utexas.ece.jacobingalls.robots.Thing;
+import edu.utexas.ece.jacobingalls.things.buildings.Factory;
+import edu.utexas.ece.jacobingalls.things.buildings.TeamBase;
+import edu.utexas.ece.jacobingalls.things.robots.Robot;
+import edu.utexas.ece.jacobingalls.things.Thing;
 import javafx.scene.paint.Color;
 
 import java.util.List;

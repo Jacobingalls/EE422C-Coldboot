@@ -1,12 +1,13 @@
-package edu.utexas.ece.jacobingalls.robots;
+package edu.utexas.ece.jacobingalls.things.robots;
 
 import edu.utexas.ece.jacobingalls.ColdBootGui;
 import edu.utexas.ece.jacobingalls.Game;
 import edu.utexas.ece.jacobingalls.player.Team;
-import edu.utexas.ece.jacobingalls.robots.blocks.Block;
-import edu.utexas.ece.jacobingalls.robots.blocks.CPUBlock;
-import edu.utexas.ece.jacobingalls.robots.blocks.MotorBlock;
-import edu.utexas.ece.jacobingalls.robots.blocks.ReactorBlock;
+import edu.utexas.ece.jacobingalls.things.robots.blocks.Block;
+import edu.utexas.ece.jacobingalls.things.robots.blocks.CPUBlock;
+import edu.utexas.ece.jacobingalls.things.robots.blocks.MotorBlock;
+import edu.utexas.ece.jacobingalls.things.robots.blocks.ReactorBlock;
+import edu.utexas.ece.jacobingalls.things.Thing;
 import edu.utexas.ece.jacobingalls.utils.Tuple;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
