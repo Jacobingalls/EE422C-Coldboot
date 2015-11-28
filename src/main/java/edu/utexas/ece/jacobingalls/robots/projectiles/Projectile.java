@@ -1,8 +1,9 @@
 package edu.utexas.ece.jacobingalls.robots.projectiles;
 
-import edu.utexas.ece.jacobingalls.App;
+import edu.utexas.ece.jacobingalls.ColdBootGui;
+import edu.utexas.ece.jacobingalls.Game;
 import edu.utexas.ece.jacobingalls.robots.MovingThing;
-import edu.utexas.ece.jacobingalls.Team;
+import edu.utexas.ece.jacobingalls.player.Team;
 import edu.utexas.ece.jacobingalls.robots.particles.Particle;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
@@ -62,7 +63,7 @@ public class Projectile extends MovingThing {
 		Random r = new Random();
 		if(r.nextBoolean()) {
 
-			App.getGame().getThingsWaiting().add(new Particle(getTeam())
+			Game.game.getThingsWaiting().add(new Particle(getTeam())
 							.setSourceColor(getTeam().getTeamColor())
 							.setCurrentVelocityX(-getCurrentVelocityX() * 10 * (r.nextDouble()/2  + .5))
 							.setCurrentVelocityY(-getCurrentVelocityY() * 10 * (r.nextDouble()/2  + .5))

@@ -1,7 +1,8 @@
 package edu.utexas.ece.jacobingalls.buildings;
 
-import edu.utexas.ece.jacobingalls.App;
-import edu.utexas.ece.jacobingalls.Team;
+import edu.utexas.ece.jacobingalls.ColdBootGui;
+import edu.utexas.ece.jacobingalls.Game;
+import edu.utexas.ece.jacobingalls.player.Team;
 import edu.utexas.ece.jacobingalls.robots.Robot;
 import edu.utexas.ece.jacobingalls.robots.blocks.CPUBlock;
 import javafx.scene.canvas.GraphicsContext;
@@ -42,7 +43,7 @@ public class RobotFactory extends Factory{
 
     @Override
     public void done() {
-        App.getGame().getThingsWaiting().add(makeRobot());
+        Game.game.getThingsWaiting().add(makeRobot());
     }
 
     private Robot makeRobot(){

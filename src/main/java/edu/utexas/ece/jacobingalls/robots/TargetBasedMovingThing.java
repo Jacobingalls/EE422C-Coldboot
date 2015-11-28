@@ -1,6 +1,6 @@
 package edu.utexas.ece.jacobingalls.robots;
 
-import edu.utexas.ece.jacobingalls.Team;
+import edu.utexas.ece.jacobingalls.player.Team;
 
 /**
  * Created by jacobingalls on 11/13/15.

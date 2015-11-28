@@ -1,6 +1,7 @@
 package edu.utexas.ece.jacobingalls.gui;
 
-import edu.utexas.ece.jacobingalls.App;
+import edu.utexas.ece.jacobingalls.ColdBootGui;
+import edu.utexas.ece.jacobingalls.Game;
 import edu.utexas.ece.jacobingalls.robots.Thing;
 import edu.utexas.ece.jacobingalls.buildings.Building;
 import edu.utexas.ece.jacobingalls.buildings.Factory;
@@ -122,7 +123,7 @@ public class RightSideBar {
 		for (int i = 0; i < blocks.size(); i++) {
 			Block b = blocks.get(i);
 			setColor(gc);
-			if(App.player.getTeam().equals(selectedThing.getTeam())) {
+			if(Game.game.getPlayer().equals(selectedThing.getTeam())) {
 				if(b.isBeingHealed())
 					gc.setFill(b.getTeam().getTeamAlternate2Color());
 
@@ -173,10 +174,10 @@ public class RightSideBar {
 	public void tick(long time_elapsed){
 		if(time_elapsed <= 0)
 			time_elapsed = 1;
-		x = App.world_width-width;
-		height = App.world_height;
+		x = Game.game.getWorldWidth()-width;
+		height = Game.game.getWorldHeight();
 
-		List<Thing> thingList = App.getGame().getThings().parallelStream().filter(Thing::isSelected).collect(Collectors.toList());
+		List<Thing> thingList = Game.game.getThings().parallelStream().filter(Thing::isSelected).collect(Collectors.toList());
 		if(thingList.size() != 1)
 			selectedThing = null;
 		else selectedThing = thingList.get(0);

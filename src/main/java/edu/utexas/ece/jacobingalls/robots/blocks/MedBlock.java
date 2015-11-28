@@ -1,6 +1,6 @@
 package edu.utexas.ece.jacobingalls.robots.blocks;
 
-import edu.utexas.ece.jacobingalls.Team;
+import edu.utexas.ece.jacobingalls.player.Team;
 import javafx.scene.canvas.GraphicsContext;
 
 import java.util.List;

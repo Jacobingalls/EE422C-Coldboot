@@ -1,10 +1,7 @@
 package edu.utexas.ece.jacobingalls.robots.blocks;
 
-import edu.utexas.ece.jacobingalls.Team;
+import edu.utexas.ece.jacobingalls.player.Team;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.shape.ArcType;
-
-import java.util.Random;
 
 /**
  * Created by jacobingalls on 11/16/15.

@@ -1,7 +1,8 @@
 package edu.utexas.ece.jacobingalls.robots;
 
-import edu.utexas.ece.jacobingalls.App;
-import edu.utexas.ece.jacobingalls.Team;
+import edu.utexas.ece.jacobingalls.ColdBootGui;
+import edu.utexas.ece.jacobingalls.Game;
+import edu.utexas.ece.jacobingalls.player.Team;
 import edu.utexas.ece.jacobingalls.robots.blocks.Block;
 import edu.utexas.ece.jacobingalls.robots.blocks.CPUBlock;
 import edu.utexas.ece.jacobingalls.robots.blocks.MotorBlock;
@@ -181,9 +182,9 @@ public class Robot extends TargetBasedMovingThing {
 			gc.strokeLine(getXCenterViewport()-spacingi, getYCenterViewport(), getXCenterViewport()+spacingi, getYCenterViewport());
 			gc.strokeLine(getXCenterViewport(), getYCenterViewport()-spacingi, getXCenterViewport(), getYCenterViewport()+spacingi);
 
-			if(App.player.getTeam().equals(getTeam())) {
-				double tgtX = getTargetLocationX() + App.viewportX;
-				double tgtY = getTargetLocationY() + App.viewportY;
+			if(Game.game.getPlayer().equals(getTeam())) {
+				double tgtX = getTargetLocationX() + ColdBootGui.viewportX;
+				double tgtY = getTargetLocationY() + ColdBootGui.viewportY;
 				double len = lineLength(tgtX, tgtY, getXCenterViewport(), getYCenterViewport());
 				if (Math.abs(len) > 1) {
 					if (len <= 100)
@@ -264,7 +265,7 @@ public class Robot extends TargetBasedMovingThing {
 		super.setHovering(hovering);
 
 		blocks.parallelStream().forEach(block -> block.setHovering(false));
-		Optional<Block> ob = blocks.parallelStream().filter(block -> block.isCollidingRoughBox(App.mouseX, App.mouseY)).findFirst();
+		Optional<Block> ob = blocks.parallelStream().filter(block -> block.isCollidingRoughBox(ColdBootGui.mouseX, ColdBootGui.mouseY)).findFirst();
 		if(ob.isPresent()){
 			ob.get().setHovering(true);
 		}

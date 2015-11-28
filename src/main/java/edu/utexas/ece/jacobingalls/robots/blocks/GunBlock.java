@@ -1,6 +1,7 @@
 package edu.utexas.ece.jacobingalls.robots.blocks;
 
-import edu.utexas.ece.jacobingalls.App;
+import edu.utexas.ece.jacobingalls.ColdBootGui;
+import edu.utexas.ece.jacobingalls.Game;
 import edu.utexas.ece.jacobingalls.robots.Thing;
 import edu.utexas.ece.jacobingalls.robots.projectiles.Projectile;
 import javafx.geometry.Point2D;
@@ -84,7 +85,7 @@ public class GunBlock extends Block {
 				innerRingColor = team.getTeamAlternate1Color();
 				gunColor = team.getTeamAlternate1Color();
 				Point2D speedXY = radialToCartesian(gunAngle, power);
-				App.getGame().getThingsWaiting().add(new Projectile(team)
+				Game.game.getThingsWaiting().add(new Projectile(team)
 						.setCurrentVelocityX(speedXY.getX())
 						.setCurrentVelocityY(speedXY.getY())
 						.setDesiredVelocityX(0)

@@ -1,7 +1,7 @@
 package edu.utexas.ece.jacobingalls.gui;
 
-import edu.utexas.ece.jacobingalls.App;
-import edu.utexas.ece.jacobingalls.Team;
+import edu.utexas.ece.jacobingalls.ColdBootGui;
+import edu.utexas.ece.jacobingalls.player.Team;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.text.TextAlignment;
 
@@ -29,7 +29,7 @@ public class Button {
 	}
 
 	public Button handlePossibleClick(boolean clicked, Consumer<Button> l){
-		if(clicked && App.mouseX >= x && App.mouseX <= x+w && App.mouseY >= y && App.mouseY <= y+h) {
+		if(clicked && ColdBootGui.mouseX >= x && ColdBootGui.mouseX <= x+w && ColdBootGui.mouseY >= y && ColdBootGui.mouseY <= y+h) {
 			l.accept(this);
 			wasClicked = true;
 		}
@@ -40,7 +40,7 @@ public class Button {
 		if(wasClicked){
 			gc.setStroke(team.getTeamAlternate2Color());
 			gc.setFill(team.getTeamAlternate2Color());
-		}else if(App.mouseX >= x && App.mouseX <= x+w && App.mouseY >= y && App.mouseY <= y+h) {
+		}else if(ColdBootGui.mouseX >= x && ColdBootGui.mouseX <= x+w && ColdBootGui.mouseY >= y && ColdBootGui.mouseY <= y+h) {
 			gc.setStroke(team.getTeamAlternate1Color());
 			gc.setFill(team.getTeamAlternate1Color());
 		} else {

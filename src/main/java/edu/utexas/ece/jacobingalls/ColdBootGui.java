@@ -1,13 +1,10 @@
 package edu.utexas.ece.jacobingalls;
 
-import edu.utexas.ece.jacobingalls.buildings.RobotFactory;
-import edu.utexas.ece.jacobingalls.buildings.TeamBase;
 import edu.utexas.ece.jacobingalls.gui.RightSideBar;
-import edu.utexas.ece.jacobingalls.robots.AIRobot;
-import edu.utexas.ece.jacobingalls.robots.Blueprint;
+import edu.utexas.ece.jacobingalls.player.AIPlayer;
+import edu.utexas.ece.jacobingalls.player.Player;
 import edu.utexas.ece.jacobingalls.robots.Robot;
 import edu.utexas.ece.jacobingalls.robots.Thing;
-import edu.utexas.ece.jacobingalls.robots.blocks.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -20,20 +17,17 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
  * Hello world!
  *
  */
-public class App extends Application
+public class ColdBootGui extends Application
 {
     public static boolean displayFPS = true;
 
     public static int target_fps = 60;
-    public static int world_width = 800;
-    public static int world_height = 600;
 
     public static double viewportX = 0;
     public static double viewportY = 0;
@@ -51,22 +45,19 @@ public class App extends Application
     private static double mouseXDrag = 0;
     private static double mouseYDrag = 0;
 
+    private static boolean shift = false;
+
     private static GraphicsContext graphicsContext;
 
     private static TickThread tickThread;
 
-    public static Player player = new Player(Team.GREEN);
-
-    private static Game game = new Game();
-
     public static void main(String[] args) {
-        launch(App.class, args);
+        launch(ColdBootGui.class, args);
     }
-
-    public static Game getGame(){return game;}
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        Game.game = new Game(new Player(Color.GREEN), new AIPlayer(Color.RED, AIPlayer.PlayStyle.SIMPLE));
         graphicsContext = setupStage(primaryStage);
 
         // Mouse management
@@ -82,7 +73,7 @@ public class App extends Application
         // Temp
         configureWorld();
 
-        // Finally, allow the user to see the game.
+        // Finally, allow the user to see the Game.game.
         primaryStage.show();
     }
 
@@ -96,34 +87,34 @@ public class App extends Application
 
         // Set the stage window up
         stage.setTitle("Cold Boot");
-        stage.setHeight(world_height);
-        stage.setWidth(world_width);
+        stage.setHeight(Game.game.getWorldHeight());
+        stage.setWidth(Game.game.getWorldWidth());
 
         // Create the canvas
-        Canvas canvas = new Canvas(world_width, world_height);
+        Canvas canvas = new Canvas(Game.game.getWorldWidth(), Game.game.getWorldHeight());
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.setFill(Color.BLACK);
-        gc.fillRect(0,0,world_width, world_height);
+        gc.fillRect(0,0,Game.game.getWorldWidth(), Game.game.getWorldHeight());
 
         // Add the canvas to a pane what will span the entire scene
         GridPane pane = new GridPane();
         pane.add(canvas, 0, 0);
 
         // Create the scene we will be using. It will fill the entire stage.
-        Scene scene = new Scene(pane,world_width,world_height);
+        Scene scene = new Scene(pane,Game.game.getWorldWidth(),Game.game.getWorldHeight());
         stage.setScene(scene);
 
         // When the width is changed update the width right now (so it looks smooth)
         scene.widthProperty().addListener((observableValue, oldSceneWidth, newSceneWidth) -> {
-            world_width = newSceneWidth.intValue();
-            canvas.setWidth(world_width);
+            Game.game.setWorldWidth(newSceneWidth.intValue());
+            canvas.setWidth(Game.game.getWorldWidth());
             tick();
         });
 
         // When the height is changed update the width right now (so it looks smooth)
         scene.heightProperty().addListener((observableValue, oldSceneHeight, newSceneHeight) -> {
-            world_height = newSceneHeight.intValue();
-            canvas.setHeight(world_height);
+            Game.game.setWorldHeight(newSceneHeight.intValue());
+            canvas.setHeight(Game.game.getWorldHeight());
             tick();
         });
 
@@ -131,40 +122,7 @@ public class App extends Application
     }
 
     private void configureWorld(){
-
-
-        double greenX = 10;
-
-        game.getThings().add(new TeamBase(player.getTeam()).setX(greenX - 100));
-
-        game.getThings().add(new RobotFactory(player.getTeam(), greenX + 100, 100, team ->
-                Blueprint.SMALL_FIGHTER.build(AIRobot.class, team).get()
-        ).setNumberToBuild(3).setX(greenX).setY(10));
-
-        game.getThings().add(new RobotFactory(player.getTeam(), greenX+100, 300, team ->
-                Blueprint.MEDIUM_FIGHTER.build(AIRobot.class, team).get()
-        ).setNumberToBuild(5).setX(greenX).setY(300));
-
-        game.getThings().add(new RobotFactory(player.getTeam(), greenX+100, 600, team ->
-                Blueprint.BIG_GUN.build(Robot.class, team).get()
-        ).setNumberToBuild(3).setX(greenX).setY(600));
-
-
-        double redX = App.world_width-10;
-        game.getThings().add(new TeamBase(Team.RED).setX(redX + 100));
-
-        game.getThings().add(new RobotFactory(Team.RED, redX-100, 100, team ->
-                Blueprint.SMALL_FIGHTER.build(AIRobot.class, team).get()
-        ).setNumberToBuild(3).setX(redX).setY(10));
-
-        game.getThings().add(new RobotFactory(Team.RED, redX-100, 300, team ->
-                Blueprint.MEDIUM_FIGHTER.build(AIRobot.class, team).get()
-        ).setNumberToBuild(5).setX(redX).setY(300));
-
-        game.getThings().add(new RobotFactory(Team.RED, redX-100, 600, team ->
-                Blueprint.BIG_GUN.build(AIRobot.class, team).get()
-        ).setNumberToBuild(3).setX(redX).setY(600));
-
+        Game.game.configureWorld();
     }
 
 
@@ -193,14 +151,14 @@ public class App extends Application
         mouseXViewport = mouseX-viewportX;
         mouseYViewport = mouseY-viewportY;
 
-        // Tick the game
-        game.tick(time_elapsed);
+        // Tick the Game.game
+        Game.game.tick(time_elapsed);
     }
 
     private void render(GraphicsContext gc){
         //clear screen
         gc.setFill(Color.BLACK);
-        gc.fillRect(0 , 0,world_width, world_height);
+        gc.fillRect(0 , 0,Game.game.getWorldWidth(), Game.game.getWorldHeight());
 
 
         // Create Parallax Background
@@ -208,13 +166,13 @@ public class App extends Application
 
         if(displayFPS) {
             gc.setFill(Color.YELLOW);
-            gc.fillText(fpsStr, world_width - 20, 10, 20);
+            gc.fillText(fpsStr, Game.game.getWorldWidth() - 20, 10, 20);
         }
 
-        game.getThings().forEach(thing -> thing.render(gc));
+        Game.game.getThings().forEach(thing -> thing.render(gc));
 
         if(dragging){
-            game.getThings().forEach(thing -> thing.setHovering(false));
+            Game.game.getThings().forEach(thing -> thing.setHovering(false));
             getThingsInDragArea().forEach(thing -> thing.setHovering(true));
 
             double x = mouseX;
@@ -228,14 +186,28 @@ public class App extends Application
             gc.setStroke(Color.GRAY);
             gc.strokeRect(x, y, width, height);
         } else {
-            game.getThings().forEach(thing -> thing.setHovering(false));
-            List<Thing> hovered = game.getThings().parallelStream().filter(thing -> thing.isCollidingRoughBox(mouseXViewport, mouseYViewport)).collect(Collectors.toList());
+            Game.game.getThings().forEach(thing -> thing.setHovering(false));
+            List<Thing> hovered = Game.game.getThings().parallelStream().filter(thing -> thing.isCollidingRoughBox(mouseXViewport, mouseYViewport)).collect(Collectors.toList());
             if(hovered.size() >= 1) {
                 hovered.get(hovered.size() - 1).setHovering(true);
             }
         }
 
-        game.getRightSideBar().render(gc);
+        Game.game.getRightSideBar().render(gc);
+
+        gc.setFill(Color.GRAY);
+        gc.fillText(getKeyboardText(), 10, Game.game.getWorldHeight()-10);
+
+
+//        TODO implement resource management
+//        gc.setFill(Color.WHITE);
+//        gc.fillText("I: " + (Math.round(getGame.game().getPlayer().getIron() * 10.0)/10.0) + " ("+getGame.game().getPlayer().getIronReplenishRate()+")", 10, 30);
+//
+//        gc.setFill(getGame.game().getPlayer().getTeamColor());
+//        gc.fillText("E: " + (Math.round(getGame.game().getPlayer().getEnergy() * 10.0)/10.0) + " ("+getGame.game().getPlayer().getEnergyReplenishRate()+")", 120, 30);
+//
+//        gc.setFill(getGame.game().getPlayer().getTeamAlternate1Color());
+//        gc.fillText("G: " + (Math.round(getGame.game().getPlayer().getGold() * 10.0)/10.0) + " ("+getGame.game().getPlayer().getGoldReplenishRate()+")", 240, 30);
     }
 
     private void renderParallaxBackground(GraphicsContext gc) {
@@ -245,8 +217,8 @@ public class App extends Application
     }
 
     private void renderParallaxBackgroundPart(GraphicsContext gc, int boxSize, double parallax, Color color) {
-        int divisionsX = (world_width/boxSize)+2;
-        int divisionsY = (world_height/boxSize)+2;
+        int divisionsX = (Game.game.getWorldWidth()/boxSize)+2;
+        int divisionsY = (Game.game.getWorldHeight()/boxSize)+2;
 
 
         gc.setStroke(color);
@@ -254,11 +226,11 @@ public class App extends Application
         double yOffset = (viewportY*parallax) % boxSize;
 
         for (int i = -1; i < divisionsX; i++) {
-            gc.strokeLine(i*boxSize+xOffset, 0, i*boxSize+xOffset, world_height);
+            gc.strokeLine(i*boxSize+xOffset, 0, i*boxSize+xOffset, Game.game.getWorldHeight());
         }
 
         for (int i = -1; i < divisionsY; i++) {
-            gc.strokeLine(0, i*boxSize+yOffset, world_width, i*boxSize+yOffset);
+            gc.strokeLine(0, i*boxSize+yOffset, Game.game.getWorldWidth(), i*boxSize+yOffset);
         }
     }
 
@@ -273,7 +245,7 @@ public class App extends Application
             prev_tick = System.currentTimeMillis();
             next_tick = prev_tick + max_tick_len;
 
-            Platform.runLater(App.this::tick);
+            Platform.runLater(ColdBootGui.this::tick);
         }
 
         public void run() {
@@ -309,9 +281,9 @@ public class App extends Application
 
 
     private void updateViewport(long time_elapsed){
-        if(viewpointOverride && time_elapsed > 0 && game.getRightSideBar().getSelectedThing() != null){
-            double desiredViewportX = -game.getRightSideBar().getSelectedThing().getXCenter()+world_width/2;
-            double desiredViewportY = -game.getRightSideBar().getSelectedThing().getYCenter()+world_height/2;
+        if(viewpointOverride && time_elapsed > 0 && Game.game.getRightSideBar().getSelectedThing() != null){
+            double desiredViewportX = -Game.game.getRightSideBar().getSelectedThing().getXCenter()+Game.game.getWorldWidth()/2;
+            double desiredViewportY = -Game.game.getRightSideBar().getSelectedThing().getYCenter()+Game.game.getWorldHeight()/2;
 
             if(viewportX > desiredViewportX-1 && viewportX < desiredViewportX+1 && viewportY > desiredViewportY-1 && viewportY < desiredViewportY+1){
                 viewportX = desiredViewportX;
@@ -380,36 +352,72 @@ public class App extends Application
         }
     }
 
-
-    // TODO be able to specify a home base
-    private void setupKeyboardActions(Scene scene){
-        scene.setOnKeyPressed(event -> {
-            if (event.getCode().isLetterKey()) {
-                if (event.getCode().equals(KeyCode.H)) {
-                    Optional<Thing> teamBaseOptional = App.getGame().getThings().parallelStream()
-                            .filter(thing -> thing instanceof TeamBase)
-                            .filter(thing -> thing.getTeam().equals(App.player.getTeam()))
-                            .findFirst();
-                    if(teamBaseOptional.isPresent()){
-                        if(teamBaseOptional.get().isSelected())
-                            App.viewpointOverride = true;
-                        else {
-                            App.getGame().getThings().parallelStream().forEach(thing -> thing.setSelected(false));
-                            teamBaseOptional.get().setSelected(true);
-                            App.viewpointOverride = false;
-                        }
-
-                    } else {
-                        System.err.println("No home base!");
-                    }
-
-
-                }
+    private String getKeyboardText(){
+        if(Game.game.getPlayer().getSelectedThings().count() > 0) {
+            if (viewpointOverride) {
+                return "c: Affix Camera, rClick: send unit(s)";
+            } else {
+                return "c: Follow Unit, rClick: send unit(s)";
             }
+        } else {
+            if(shift)
+                return "B: Select All Bases, F: Select All Factories, R: Select All Robots";
+            else
+                return "b: Cycle Base, f: Cycle Factory, r: Cycle Robot";
+        }
+    }
+
+    private void setupKeyboardActions(Scene scene){
+        scene.setOnKeyReleased(event -> {
+            if(!event.isShiftDown())
+                shift = false;
         });
 
-        scene.setOnKeyReleased(event -> {
-            System.out.println("r"+event.getCode().getName());
+        scene.setOnKeyPressed(event -> {
+            if (event.isShiftDown())
+                shift = true;
+
+            if (event.getCode().isLetterKey()) {
+                if (event.getCode().equals(KeyCode.C)) {
+                    viewpointOverride = !viewpointOverride;
+                } else if (event.getCode().equals(KeyCode.B)) {
+
+                    if (!event.isShiftDown())
+                        Game.game.getPlayer().selectNextBase();
+                    else {
+                        Game.game.getPlayer().getSelectedThings().forEach(thing -> thing.setSelected(false));
+                        Game.game.getPlayer().getBases().forEach(factory -> factory.setSelected(true));
+                    }
+
+                    if (!event.isControlDown()) {
+                        viewpointOverride = true;
+                    }
+                } else if (event.getCode().equals(KeyCode.F)) {
+
+                    if (!event.isShiftDown())
+                        Game.game.getPlayer().selectNextFactory();
+                    else {
+                        Game.game.getPlayer().getSelectedThings().forEach(thing -> thing.setSelected(false));
+                        Game.game.getPlayer().getFactories().forEach(factory -> factory.setSelected(true));
+                    }
+
+                    if (!event.isControlDown()) {
+                        viewpointOverride = true;
+                    }
+                } else if (event.getCode().equals(KeyCode.R)) {
+
+                    if (!event.isShiftDown())
+                        Game.game.getPlayer().selectNextRobot();
+                    else {
+                        Game.game.getPlayer().getSelectedThings().forEach(thing -> thing.setSelected(false));
+                        Game.game.getPlayer().getRobots().forEach(robot -> robot.setSelected(true));
+                    }
+
+                    if (!event.isControlDown()) {
+                        viewpointOverride = true;
+                    }
+                }
+            }
         });
     }
 
@@ -420,21 +428,20 @@ public class App extends Application
         });
 
         scene.setOnMouseClicked(event -> {
-            viewpointOverride = true;
             if(movingViewPort) {
                 viewpointOverride = false;
                 movingViewPort = false;
             }else if(event.getButton() == MouseButton.PRIMARY) {
-                RightSideBar rightSideBar = game.getRightSideBar();
+                RightSideBar rightSideBar = Game.game.getRightSideBar();
                 if(rightSideBar.getOffset() < 10 && mouseX >= rightSideBar.getX() && mouseX <= rightSideBar.getX() + rightSideBar.getWidth()
                         && mouseX >= rightSideBar.getY() && mouseY <= rightSideBar.getY() + rightSideBar.getHeight()){
                     rightSideBar.wasClicked = true;
                 } else {
-                    game.getThings().forEach(thing -> thing.setSelected(false));
+                    Game.game.getThings().forEach(thing -> thing.setSelected(false));
                     if (dragging) {
                         getThingsInDragArea().forEach(thing -> thing.setSelected(true));
                     } else {
-                        List<Thing> hovered = game.getThings().parallelStream().filter(thing -> thing.isCollidingRoughBox(mouseXViewport, mouseYViewport)).collect(Collectors.toList());
+                        List<Thing> hovered = Game.game.getThings().parallelStream().filter(thing -> thing.isCollidingRoughBox(mouseXViewport, mouseYViewport)).collect(Collectors.toList());
                         if (hovered.size() >= 1)
                             hovered.get(hovered.size() - 1).click(mouseXViewport, mouseYViewport);
                     }
@@ -443,11 +450,11 @@ public class App extends Application
                     dragging = false;
                 }
             } else if(event.getButton() == MouseButton.SECONDARY){
-                List<Robot> selectedRobots = game.getThings().parallelStream()
+                List<Robot> selectedRobots = Game.game.getThings().parallelStream()
                         .filter(Thing::isSelected)
-                        .filter(thing -> thing.getTeam().equals(player.getTeam()))
+                        .filter(thing -> thing.getTeam().equals(Game.game.getPlayer()))
                         .filter(thing -> thing instanceof Robot)
-                        .map(thing -> (Robot)thing)
+                        .map(thing -> (Robot) thing)
                         .collect(Collectors.toList());
                 selectedRobots.forEach(robot -> robot.setTargetLocation(event.getX()-viewportX, event.getY()-viewportY));
             }
@@ -493,7 +500,7 @@ public class App extends Application
         final double y1 = y;
         final double x2 = x+width;
         final double y2 = y+height;
-        return game.getThings().parallelStream().filter(thing -> thing.getXCenter() >= x1
+        return Game.game.getThings().parallelStream().filter(thing -> thing.getXCenter() >= x1
                 && thing.getYCenter() >= y1
                 && thing.getXCenter() <= x2
                 && thing.getYCenter() <= y2).collect(Collectors.toList());

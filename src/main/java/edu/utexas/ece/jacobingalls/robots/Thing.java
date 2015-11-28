@@ -1,7 +1,8 @@
 package edu.utexas.ece.jacobingalls.robots;
 
-import edu.utexas.ece.jacobingalls.App;
-import edu.utexas.ece.jacobingalls.Team;
+import edu.utexas.ece.jacobingalls.ColdBootGui;
+import edu.utexas.ece.jacobingalls.Game;
+import edu.utexas.ece.jacobingalls.player.Team;
 import edu.utexas.ece.jacobingalls.buildings.Building;
 import edu.utexas.ece.jacobingalls.utils.Tuple;
 import javafx.geometry.Point2D;
@@ -12,6 +13,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
 public abstract class Thing {
+
 	protected Team team;
 
 	private double health = 100;
@@ -46,8 +48,8 @@ public abstract class Thing {
 	public double getXCenter(){return getWidth()/2 + getX();}
 	public double getYCenter(){return getHeight()/2 + getY();}
 
-	public double getXCenterViewport(){return getXCenter() + App.viewportX;}
-	public double getYCenterViewport(){return getYCenter() + App.viewportY;}
+	public double getXCenterViewport(){return getXCenter() + ColdBootGui.viewportX;}
+	public double getYCenterViewport(){return getYCenter() + ColdBootGui.viewportY;}
 
 	public Thing setXCenter(double x){ this.x = x - getWidth()/2; return this;}
 	public Thing setYCenter(double y){ this.y = y - getHeight()/2; return this;}
@@ -58,8 +60,8 @@ public abstract class Thing {
 	public double getX(){return x;}
 	public double getY(){return y;}
 
-	public double getXViewport(){return x + App.viewportX;}
-	public double getYViewport(){return y + App.viewportY;}
+	public double getXViewport(){return x + ColdBootGui.viewportX;}
+	public double getYViewport(){return y + ColdBootGui.viewportY;}
 
 	public abstract double getWidth();
 	public abstract double getHeight();
@@ -114,14 +116,14 @@ public abstract class Thing {
 
 	public Thing getClosestEnemy(){
 		Queue<Thing> al = new ConcurrentLinkedQueue<>();
-		App.getGame().getThings().parallelStream()
+		Game.game.getThings().parallelStream()
 				.filter(thing -> thing instanceof Robot)
 				.filter(thing -> !team.equals(thing.team))
 				.map(thing -> ((Robot) thing).getBlocks())
 				.collect(Collectors.toList())
 				.forEach(al::addAll);
 
-		App.getGame().getThings().parallelStream()
+		Game.game.getThings().parallelStream()
 				.filter(thing -> thing instanceof Building)
 				.filter(thing -> !team.equals(thing.team))
 				.forEach(al::add);

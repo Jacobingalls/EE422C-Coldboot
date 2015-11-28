@@ -1,8 +1,6 @@
 package edu.utexas.ece.jacobingalls.robots.blocks;
 
-import edu.utexas.ece.jacobingalls.Team;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
 
 
 /**
