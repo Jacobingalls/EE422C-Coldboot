@@ -16,12 +16,14 @@ import static org.junit.Assert.*;
 public class ThingTest {
 
 	static Thing thing;
+	static Player player;
 	static long number = 0;
 	static Random random = new Random();
 
 	@BeforeClass
 	public static void setUpClass() {
-		thing = new Thing(new Player(Color.GREEN)) {
+		player = new Player(Color.GREEN);
+		thing = new Thing(player) {
 			@Override
 			public double getWidth() {
 				return 20;
@@ -83,16 +85,18 @@ public class ThingTest {
 
 	@Test
 	public void testGetPoint2D() throws Exception {
+		Assert.assertEquals((int)thing.getXCenter(), (int)thing.getPoint2D().getX());
+		Assert.assertEquals((int)thing.getYCenter(), (int)thing.getPoint2D().getY());
 
+		thing.setX(100);
+		thing.setY(50);
+
+		Assert.assertEquals((int)thing.getXCenter(), (int)thing.getPoint2D().getX());
+		Assert.assertEquals((int)thing.getYCenter(), (int)thing.getPoint2D().getY());
 	}
 
 	@Test
 	public void testGetTeam() throws Exception {
-
-	}
-
-	@Before
-	public void setUp() throws Exception {
-
+		Assert.assertTrue(thing.getTeam().equals(player));
 	}
 }

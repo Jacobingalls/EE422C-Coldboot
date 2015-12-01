@@ -9,6 +9,7 @@ import edu.utexas.ece.jacobingalls.things.robots.Blueprint;
 import edu.utexas.ece.jacobingalls.things.Thing;
 import edu.utexas.ece.jacobingalls.things.robots.particles.Particle;
 import edu.utexas.ece.jacobingalls.things.robots.projectiles.Projectile;
+import javafx.scene.paint.Color;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -31,12 +32,19 @@ public class Game {
 
 	private RightSideBar rightSideBar = new RightSideBar();
 
+	Boolean gameOver = false;
+	String gameOverString = "";
+	Color gameOverColor = Color.TRANSPARENT;
+
 	public Game(Player player, Player aiplayer){
 		this.player = player;
 		this.aiplayer = aiplayer;
 	}
 
 	public void tick(long time_elapsed){
+		if(gameOver)
+			return;
+
 		// If there are things waiting to be added the the game, add them.
 		while (!thingsWaiting.isEmpty())
 			things.add(thingsWaiting.poll());
@@ -69,6 +77,25 @@ public class Game {
 
 		// Update the sidebar
 		rightSideBar.tick(time_elapsed);
+
+
+		long pb = player.getBases().count();
+		long apb = aiplayer.getBases().count();
+		if(pb == 0){
+			gameOver = true;
+			gameOverColor = aiplayer.getTeamColor();
+			gameOverString = "Player 2 Won.";
+		} else if(apb == 0){
+			gameOver = true;
+			gameOverColor = player.getTeamColor();
+			gameOverString = "Player 1 Won.";
+		}
+
+		if(ColdBootRepl.running && gameOver){
+			System.out.print("The game has ended. "+gameOverString);
+
+			System.exit(0);
+		}
 	}
 
 	public List<Thing> getThings() {
@@ -164,5 +191,9 @@ public class Game {
 
 	public void setWorldHeight(int worldHeight) {
 		this.worldHeight = worldHeight;
+	}
+
+	public Boolean getGameOver() {
+		return gameOver;
 	}
 }

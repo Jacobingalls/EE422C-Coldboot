@@ -3,6 +3,7 @@ package edu.utexas.ece.jacobingalls.things.robots;
 import edu.utexas.ece.jacobingalls.ColdBootGui;
 import edu.utexas.ece.jacobingalls.Game;
 import edu.utexas.ece.jacobingalls.player.Team;
+import edu.utexas.ece.jacobingalls.things.TargetBasedMovingThing;
 import edu.utexas.ece.jacobingalls.things.robots.blocks.Block;
 import edu.utexas.ece.jacobingalls.things.robots.blocks.CPUBlock;
 import edu.utexas.ece.jacobingalls.things.robots.blocks.MotorBlock;

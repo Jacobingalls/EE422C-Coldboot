@@ -1,7 +1,7 @@
 package edu.utexas.ece.jacobingalls.things.robots.projectiles;
 
 import edu.utexas.ece.jacobingalls.Game;
-import edu.utexas.ece.jacobingalls.things.robots.MovingThing;
+import edu.utexas.ece.jacobingalls.things.MovingThing;
 import edu.utexas.ece.jacobingalls.player.Team;
 import edu.utexas.ece.jacobingalls.things.robots.particles.Particle;
 import javafx.geometry.Point2D;
@@ -39,7 +39,7 @@ public class Projectile extends MovingThing {
 		super.tick(time_elapsed);
 
 		if(time_elapsed > 0)
-			setHealth(getHealth() -20/time_elapsed);
+			setHealth(getHealth() -30/time_elapsed);
 	}
 
 	@Override

@@ -29,6 +29,8 @@ public class ColdBootRepl {
 	public static final String ANSI_CYAN = "\u001B[36m";
 	public static final String ANSI_WHITE = "\u001B[37m";
 
+	public static boolean running = false;
+
 	public static List<Command> commands = Arrays.asList(
 			new HelpCommand(),
 			new WatchCommand(),
@@ -40,14 +42,16 @@ public class ColdBootRepl {
 
 		Game.game = new Game( new AIPlayer(Color.GREEN, AIPlayer.PlayStyle.SIMPLE),
 				new AIPlayer(Color.RED, AIPlayer.PlayStyle.SIMPLE));
-		Game.game.setWorldWidth(1000);
-		Game.game.setWorldHeight(20);
+		Game.game.setWorldWidth(800);
+		Game.game.setWorldHeight(600);
 		Game.game.configureWorld();
+		Game.game.setWorldWidth(800);
+		Game.game.setWorldHeight(20);
 
 		motd();
 		Scanner scanner = new Scanner(System.in);
 
-		boolean running = true;
+		running = true;
 		do{
 			//read
 			System.out.print("$ ");

@@ -14,6 +14,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
 import java.util.List;
@@ -208,6 +209,24 @@ public class ColdBootGui extends Application
 //
 //        gc.setFill(getGame.game().getPlayer().getTeamAlternate1Color());
 //        gc.fillText("G: " + (Math.round(getGame.game().getPlayer().getGold() * 10.0)/10.0) + " ("+getGame.game().getPlayer().getGoldReplenishRate()+")", 240, 30);
+
+
+        if(Game.game.gameOver){
+            double xp = Game.game.getWorldWidth()/2-100;
+            double yp = Game.game.getWorldHeight()/2-100;
+            gc.setFill(Game.game.gameOverColor.darker().darker().darker());
+            gc.setStroke(Game.game.gameOverColor);
+            gc.fillRect(xp, yp, 200,200);
+            gc.strokeRect(xp, yp, 200,200);
+
+            gc.setFill(Game.game.gameOverColor);
+            TextAlignment textAlignment = gc.getTextAlign();
+            gc.setTextAlign(TextAlignment.CENTER);
+            gc.fillText(Game.game.gameOverString, xp+100, yp+110);
+            gc.setTextAlign(textAlignment);
+        }
+
+
     }
 
     private void renderParallaxBackground(GraphicsContext gc) {
