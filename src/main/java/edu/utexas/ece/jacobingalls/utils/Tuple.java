@@ -1,7 +1,5 @@
 package edu.utexas.ece.jacobingalls.utils;
 
-import java.util.Objects;
-
 public class Tuple<M, N> {
 
 	public final M a;

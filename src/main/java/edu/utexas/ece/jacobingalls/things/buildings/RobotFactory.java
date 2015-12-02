@@ -3,7 +3,7 @@ package edu.utexas.ece.jacobingalls.things.buildings;
 import edu.utexas.ece.jacobingalls.Game;
 import edu.utexas.ece.jacobingalls.player.Team;
 import edu.utexas.ece.jacobingalls.things.robots.Robot;
-import edu.utexas.ece.jacobingalls.things.robots.blocks.CPUBlock;
+import edu.utexas.ece.jacobingalls.things.blocks.CPUBlock;
 import javafx.scene.canvas.GraphicsContext;
 
 import java.util.function.Function;

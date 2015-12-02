@@ -7,8 +7,8 @@ import edu.utexas.ece.jacobingalls.player.Player;
 import edu.utexas.ece.jacobingalls.things.robots.AIRobot;
 import edu.utexas.ece.jacobingalls.things.robots.Blueprint;
 import edu.utexas.ece.jacobingalls.things.Thing;
-import edu.utexas.ece.jacobingalls.things.robots.particles.Particle;
-import edu.utexas.ece.jacobingalls.things.robots.projectiles.Projectile;
+import edu.utexas.ece.jacobingalls.things.particles.Particle;
+import edu.utexas.ece.jacobingalls.things.projectiles.Projectile;
 import javafx.scene.paint.Color;
 
 import java.util.LinkedList;

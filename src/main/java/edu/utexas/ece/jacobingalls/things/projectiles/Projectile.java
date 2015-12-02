@@ -1,9 +1,9 @@
-package edu.utexas.ece.jacobingalls.things.robots.projectiles;
+package edu.utexas.ece.jacobingalls.things.projectiles;
 
 import edu.utexas.ece.jacobingalls.Game;
 import edu.utexas.ece.jacobingalls.things.MovingThing;
 import edu.utexas.ece.jacobingalls.player.Team;
-import edu.utexas.ece.jacobingalls.things.robots.particles.Particle;
+import edu.utexas.ece.jacobingalls.things.particles.Particle;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 
