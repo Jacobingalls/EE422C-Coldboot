@@ -5,7 +5,7 @@ import edu.utexas.ece.jacobingalls.things.Thing;
 import edu.utexas.ece.jacobingalls.things.buildings.Building;
 import edu.utexas.ece.jacobingalls.things.buildings.Factory;
 import edu.utexas.ece.jacobingalls.things.robots.Robot;
-import edu.utexas.ece.jacobingalls.things.robots.blocks.Block;
+import edu.utexas.ece.jacobingalls.things.blocks.Block;
 import edu.utexas.ece.jacobingalls.utils.Tuple;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;

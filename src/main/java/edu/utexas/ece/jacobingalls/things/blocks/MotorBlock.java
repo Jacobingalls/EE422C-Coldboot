@@ -1,4 +1,4 @@
-package edu.utexas.ece.jacobingalls.things.robots.blocks;
+package edu.utexas.ece.jacobingalls.things.blocks;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.shape.ArcType;
