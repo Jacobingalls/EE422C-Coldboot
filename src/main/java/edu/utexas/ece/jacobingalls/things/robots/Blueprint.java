@@ -33,7 +33,7 @@ public class Blueprint {
 			.addBlock(MedBlock.class, 0, 1)
 			.addBlock(MedBlock.class, 0, -2)
 			.addBlockCol(ReactorBlock.class, 1, -2, 2)
-			.addBlockCol(MedBlock.class, -1, -2, 2)
+			.addBlockCol(ReactorBlock.class, -1, -2, 2)
 			.addBlockRec(GunBlock.class, 2, -4, 3, 8);
 
 	public static Blueprint MEDIUM_FIGHTER = new Blueprint("MediumFighter")
