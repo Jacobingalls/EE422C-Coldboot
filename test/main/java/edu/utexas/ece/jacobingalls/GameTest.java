@@ -33,9 +33,11 @@ public class GameTest {
 		game.tick(1);
 		assertFalse(game.gameOver);
 
-		game.getThings().add(new RobotFactory(game.getPlayer(), 100,100,
+		game.getThingsWaiting().add(new RobotFactory(game.getPlayer(), 100,100,
 				team -> Blueprint.SMALL_FIGHTER.build(AIRobot.class, team).get()
 		));
+
+		game.tick(1);
 
 		game.getPlayer().getFactories().findFirst().get().setNumberToBuild(1);
 		assertFalse(game.getPlayer().getFactories().findFirst().get().isBuilding());
