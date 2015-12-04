@@ -447,6 +447,7 @@ public class ColdBootGui extends Application
         });
 
         scene.setOnMouseClicked(event -> {
+            
             if(movingViewPort) {
                 viewpointOverride = false;
                 movingViewPort = false;
